@@ -1,0 +1,18 @@
+# --------------------------
+
+# IDE/Text Editor
+.zed
+.vscode
+
+# Haxe-related
+.haxelib
+export
+dump
+
+# Tests
+tests/*
+!tests/Main.hx
+!tests/build.hxml
+!tests/config.ini.template
+
+# --------------------------

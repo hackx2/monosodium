@@ -1,0 +1,12 @@
+{
+  "name": "monosodium",
+  "url": "https://github.com/hackx2/monosodium",
+  "license": "MIT",
+  "tags": ["api", "api-wrapper"],
+  "description": "A lightweight, easy-to-use synchronous e621 / e926 API wrapper.",
+  "version": "0.0.1",
+  "classPath": "src/",
+  "releasenote": "Initial release",
+  "contributors": ["hackx2"],
+  "dependencies": {}
+}

@@ -1,0 +1,9 @@
+
+--resource tests/config.ini@CONFIG
+--dce no
+-lib mini
+-lib monosodium
+-cp tests
+-main Main
+-hl export/hl/main.hl
+--cmd hl export/hl/main.hl
