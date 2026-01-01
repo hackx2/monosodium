@@ -1,7 +1,6 @@
 package monosodium.net;
 
 import haxe.Timer;
-import Sys;
 
 class RateLimiter {
 	@:dox(hide) var _intervalMs:Int;
@@ -39,7 +38,7 @@ class RateLimiter {
 
 		_running = true;
 
-		final now:Float = Sys.time() * 1000;
+		final now:Float = Timer.stamp() * 1000;
 		final wait:Float = _intervalMs - (now - _lastTime);
 
 		if (wait <= 0) {
@@ -47,7 +46,7 @@ class RateLimiter {
 			queue.shift()();
 		} else {
 			Timer.delay(() -> {
-				_lastTime = Sys.time() * 1000;
+				_lastTime = Timer.stamp() * 1000;
 				queue.shift()();
 			}, Std.int(wait));
 		}
