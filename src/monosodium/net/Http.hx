@@ -1,29 +1,107 @@
 package monosodium.net;
 
-import haxe.http.HttpMethod;
+import haxe.io.Bytes;
 import sys.net.Socket;
+import haxe.DynamicAccess;
 import haxe.io.BytesOutput;
+import haxe.http.HttpMethod;
+import monosodium.net.Header;
+import haxe.extern.EitherType;
+import monosodium.net.Parameter;
+import haxe.exceptions.NotImplementedException;
+#if nodejs
+import js.node.Url;
+import js.node.Https;
+import js.node.http.IncomingMessage;
+import js.node.http.ClientRequest;
+#else
+import haxe.Http as HttpSource;
+#end
 
+using StringTools;
+
+// SUPPORTS: sys, nodejs
+// SYS: YES
+// NODEJS: No
 // But nobody came
-class Http extends haxe.Http {
+class Http {
+	public var url:Null<String> = null;
 	public var method:HttpMethod = Get;
+	public var headers:Array<Header> = [];
+	public var parameters:Array<Parameter> = [];
+
+	#if (!js)
 	public var socket:Null<Socket>;
+	#end
 
-	public override function request(?post:Bool):Void {
-		final output:BytesOutput = new BytesOutput();
-		final old:(msg:String) -> Void = onError;
-		var err:Bool = false;
+	var postData:Null<String>;
+	var postBytes:Null<Bytes>;
 
-		onError = (msg:String) -> {
-			responseBytes = output.getBytes();
-			err = true;
-			onError = old;
-			onError(msg);
+	public function new(url:String):Void this.url = url;
+
+	public function request(?post:Bool):Void {
+		#if nodejs // NODE.JS
+		// wip leave me alone,,,,, nodejs is weird as fuck
+		#else // SYS ???
+		final http = new HttpSource(url);
+		for (i in headers) {
+			http.addHeader(i.name, i.value);
+		}
+		for (i in parameters) {
+			http.setParameter(i.name, i.value);
+		}
+		if (postData != null) {
+			http.setPostData(postData);
+		}
+		if (postBytes != null) {
+			http.setPostBytes(postBytes);
 		}
 
+		http.onData = onData;
+		http.onError = onError;
+		http.onStatus = onStatus;
+
+		final output:BytesOutput = new BytesOutput();
+		var err:Bool = false;
+		http.onError = (error:String) -> {
+			untyped http.responseBytes = output.getBytes();
+			err = true;
+			http.onError = onError;
+			onError(error);
+		}
 		post = post || postBytes != null || postData != null;
-		customRequest(post, output, socket, method);
-		if (!err)
-			success(output.getBytes());
+		http.customRequest(post, output, #if (!js) socket #else null #end, method);
+		if (!err) {
+			@:privateAccess http.success(output.getBytes());
+		}
+		#end
 	}
+
+	public function send() {
+		throw NotImplementedException;
+	}
+
+	// HELPER FUNCTIONS
+	public function addHeader(name:String, value:Dynamic):Void {
+		headers.push(new Header(name, value));
+	}
+
+	public function setParameter(name:String, value:Dynamic):Void {
+		parameters.push(new Parameter(name, value));
+	}
+
+	public function setPostData(postData:String):Void {
+		this.postData = postData;
+	}
+
+	public function setPostBytes(postBytes:Bytes):Void {
+		this.postBytes = postBytes;
+	}
+
+	// EVENT HOOKS
+	dynamic public function onData(_:String):Void {}
+
+	dynamic public function onError(_:String):Void {}
+
+	dynamic public function onStatus(_:Int):Void {}
 }
