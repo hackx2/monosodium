@@ -32,17 +32,19 @@ class RequestClient {
 		this.statusCode = 0;
 
 		_http = new Http(Path.join([(monosodium._mirror == E621) ? Endpoint.e6 : Endpoint.e9, url]));
-		_http.addHeader("User-Agent", "hackx2@monosodium/1.0");
+
+		#if js if(!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
+			_http.addHeader("User-Agent", Http.USER_AGENT);
 
 		var auth:Null<String> = null;
 		if (monosodium.verbose) {
-			Utility.verboseTrace('Starting Request : [$method] $url');
-			Utility.verboseTrace("User-Agent : hackx2@monosodium/1.0");
+			Utility.verboseTrace('Request : [$method] $url');
+			Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
 			if (monosodium.api_token != null && monosodium.username != null) {
 				auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
 				Utility.verboseTrace('Authorization : Basic ${Utility.censorString(auth)}');
 			}
-			params != null ? Utility.verboseTrace('RequestClient Parameters : ${Json.stringify(params)}') : null;
+			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
 		}
 		
 		if (auth != null) {
@@ -70,13 +72,16 @@ class RequestClient {
 	}
 
 	function onData(data:String, onSuccess:Dynamic->Void, onError:String->Void):Void {
+		onError ??= (s)->trace(s);
 		switch (statusCode) {
-			case 200, 204:
+			case 200:
 				try {
-					onSuccess(haxe.Json.parse(data));
+					onSuccess(Json.parse(data));
 				} catch (e:Dynamic) {
 					onError("Invalid JSON response");
 				}
+			case 204: // not found... aka blank 
+				onSuccess(null);
 			default:
 				try {
 					final err:Result = Json.parse(data);
@@ -88,8 +93,9 @@ class RequestClient {
 	}
 
 	function onError(error:String, onError:String->Void):Void {
+		onError ??= (s) -> trace(s);
 		monosodium.verbose ? Utility.verboseTrace('Error : $error') : null;
-		onError != null ? onError(error) : null;
+		onError(error);
 		Monosodium.limiter.enqueue(() -> {});
 	}
 
