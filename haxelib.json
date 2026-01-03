@@ -4,7 +4,7 @@
   "license": "MIT",
   "tags": ["api", "api-wrapper"],
   "description": "A lightweight, easy-to-use synchronous e621 / e926 API wrapper.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "classPath": "src/",
   "releasenote": "Initial release",
   "contributors": ["hackx2"],
