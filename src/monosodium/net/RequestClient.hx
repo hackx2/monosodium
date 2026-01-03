@@ -13,7 +13,7 @@ import monosodium.net.Http;
 import monosodium.endpoints.base.Endpoint;
 
 @:access(monosodium.Monosodium)
-class RequestDispatcher {
+class RequestClient {
 	public var statusCode:Int = 0;
 
 	var _http:Null<Http>;
@@ -36,13 +36,13 @@ class RequestDispatcher {
 
 		var auth:Null<String> = null;
 		if (monosodium.verbose) {
-			Utility.verboseTrace('Starting RequestDispatcher : $method $url');
+			Utility.verboseTrace('Starting Request : [$method] $url');
 			Utility.verboseTrace("User-Agent : hackx2@monosodium/1.0");
 			if (monosodium.api_token != null && monosodium.username != null) {
 				auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
 				Utility.verboseTrace('Authorization : Basic ${Utility.censorString(auth)}');
 			}
-			params != null ? Utility.verboseTrace('RequestDispatcher Parameters : ${Json.stringify(params)}') : null;
+			params != null ? Utility.verboseTrace('RequestClient Parameters : ${Json.stringify(params)}') : null;
 		}
 		
 		if (auth != null) {
