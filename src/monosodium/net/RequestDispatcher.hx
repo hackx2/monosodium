@@ -1,4 +1,4 @@
-package monosodium;
+package monosodium.net;
 
 import monosodium.Utility;
 import haxe.Json;
@@ -13,42 +13,40 @@ import monosodium.net.Http;
 import monosodium.endpoints.base.Endpoint;
 
 @:access(monosodium.Monosodium)
-class RequestService {
+class RequestDispatcher {
 	public var statusCode:Int = 0;
 
 	var _http:Null<Http>;
 
 	@:dox(hide) var monosodium:Monosodium;
-
 	public function new(monosodium:Monosodium):Void {
 		this.monosodium = monosodium;
 	}
 
-	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void,
-			?params:Dynamic):Void {
+	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic):Void {
 		Monosodium.limiter.enqueue(() -> performRequest(url, post, method, onSuccess, onError, onStatus, params));
 	}
 
 	@:dox(hide)
-	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void,
-			?params:Dynamic):Void {
+	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, params:Dynamic):Void {
 		this.statusCode = 0;
 
 		_http = new Http(Path.join([(monosodium._mirror == E621) ? Endpoint.e6 : Endpoint.e9, url]));
 		_http.addHeader("User-Agent", "hackx2@monosodium/1.0");
 
+		var auth:Null<String> = null;
 		if (monosodium.verbose) {
-			Utility.verboseTrace('Starting Request : $method $url');
+			Utility.verboseTrace('Starting RequestDispatcher : $method $url');
 			Utility.verboseTrace("User-Agent : hackx2@monosodium/1.0");
 			if (monosodium.api_token != null && monosodium.username != null) {
-				final auth:String = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
+				auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
 				Utility.verboseTrace('Authorization : Basic ${Utility.censorString(auth)}');
 			}
-			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
+			params != null ? Utility.verboseTrace('RequestDispatcher Parameters : ${Json.stringify(params)}') : null;
 		}
-
-		if (monosodium.api_token != null && monosodium.username != null) {
-			_http.addHeader("Authorization", Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token)));
+		
+		if (auth != null) {
+			_http.addHeader("Authorization", auth);
 		}
 
 		if (params != null) {
