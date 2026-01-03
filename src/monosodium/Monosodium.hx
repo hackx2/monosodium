@@ -9,7 +9,7 @@ import haxe.crypto.Base64;
 import haxe.io.Bytes;
 import haxe.http.HttpMethod;
 import monosodium.net.RateLimiter;
-import monosodium.net.RequestDispatcher;
+import monosodium.net.RequestClient;
 
 // You are filled with determination
 class Monosodium {
@@ -22,7 +22,7 @@ class Monosodium {
 	@:unreflective
 	private var api_token:Null<String>;
 	private var _mirror:Null<Mirror>;
-	private var requestAPI:RequestDispatcher;
+	private var requestAPI:RequestClient;
 
 	public var posts:PostsEndpoint;
 	public var pools:PoolsEndpoint;
@@ -47,7 +47,7 @@ class Monosodium {
 	}
 
 	public function new():Void {
-		this.requestAPI = new RequestDispatcher(this);
+		this.requestAPI = new RequestClient(this);
 		initializeEndpoints();
 	}
 
