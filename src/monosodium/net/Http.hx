@@ -1,7 +1,6 @@
 package monosodium.net;
 
 import haxe.io.Bytes;
-import sys.net.Socket;
 import haxe.DynamicAccess;
 import haxe.io.BytesOutput;
 import haxe.http.HttpMethod;
@@ -17,6 +16,9 @@ import js.node.http.ClientRequest;
 #else
 import haxe.Http as HttpSource;
 #end
+#if sys
+import sys.net.Socket;
+#end
 
 using StringTools;
 
@@ -25,6 +27,8 @@ using StringTools;
 // NODEJS: No
 // But nobody came
 class Http {
+	public static inline final USER_AGENT:String = 'hackx2@monosodium/1.0';
+
 	public var url:Null<String> = null;
 	public var method:HttpMethod = Get;
 	public var headers:Array<Header> = [];
@@ -70,7 +74,11 @@ class Http {
 			onError(error);
 		}
 		post = post || postBytes != null || postData != null;
-		http.customRequest(post, output, #if (!js) socket #else null #end, method);
+		#if (!js)
+		http.customRequest(post, output, socket, method);
+		#else
+		http.request(post);
+		#end
 		if (!err) {
 			@:privateAccess http.success(output.getBytes());
 		}
