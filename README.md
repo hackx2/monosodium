@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/hackx2/monosodium/refs/heads/main/docs/monosodium.png" alt="monosodium logo" align="left" width="150"/>
+<img src="./docs/monosodium.png" alt="monosodium logo" align="left" width="150"/>
 <br>
 
 ### monosodium

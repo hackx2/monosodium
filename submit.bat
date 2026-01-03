@@ -12,6 +12,7 @@ copy .gitignore release\
 copy extraParams.hxml release\
 mkdir release\src\monosodium
 xcopy src\monosodium release\src\monosodium /E /I /Y
+xcopy docs release\docs /E /I /Y
 
 pushd release
 7za a -tzip ..\release.zip *
