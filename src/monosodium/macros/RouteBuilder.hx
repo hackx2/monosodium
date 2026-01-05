@@ -8,15 +8,7 @@ import haxe.macro.Compiler;
 
 // :3
 // this is so overkill :pensive:
-@:nullSafety
-class Route {
-	public static function init():Void {
-		if (Context.defined("display")) {
-			return;
-		}
-		Compiler.addGlobalMetadata("monosodium.endpoints", '@:build(monosodium.macros.Route.build())');
-	}
-
+class RouteBuilder {
 	public static macro function build():Array<Field> {
 		final fields:Array<Field> = Context.getBuildFields();
 		final cls:ClassType = Context.getLocalClass().get();

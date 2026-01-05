@@ -1,6 +1,7 @@
 package monosodium.endpoints.base;
 
 @:route('/') // isn't needed but eh
+@:autoBuild(monosodium.macros.RouteBuilder.build())
 class Endpoint {
 	// find a better alternative.. maybe using the mirror abstract and adding "https://" & ".net"??
 	public inline static final e6:String = 'https://e621.net';
