@@ -31,7 +31,7 @@ class RequestClient {
 	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, params:Dynamic):Void {
 		this.statusCode = 0;
 
-		_http = new Http(Path.join([(monosodium._mirror == E621) ? Endpoint.e6 : Endpoint.e9, url]));
+		_http = new Http(Path.join([monosodium._mirror.url, url]));
 
 		#if js if(!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
 			_http.addHeader("User-Agent", Http.USER_AGENT);
