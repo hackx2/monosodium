@@ -1,5 +1,6 @@
 package monosodium.net;
 
+import sys.Http;
 import monosodium.Utility;
 import haxe.Json;
 import haxe.crypto.Base64;
@@ -11,12 +12,12 @@ import monosodium.Utility;
 import haxe.io.Path;
 import monosodium.net.Http;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.net.ratelimiter.Limiter;
 
 @:access(monosodium.Monosodium)
 class RequestClient {
 	public var statusCode:Int = 0;
-
-	var _http:Null<Http>;
+	public var rate:Limiter = Monosodium.base_limiter; // 
 
 	@:dox(hide) var monosodium:Monosodium;
 	public function new(monosodium:Monosodium):Void {
@@ -24,26 +25,28 @@ class RequestClient {
 	}
 
 	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic):Void {
-		Monosodium.limiter.enqueue(() -> performRequest(url, post, method, onSuccess, onError, onStatus, params));
+		rate.enqueue(CALL(()->performRequest(url, post, method, onSuccess, onError, onStatus, params)));
 	}
 
 	@:dox(hide)
 	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, params:Dynamic):Void {
 		this.statusCode = 0;
 
-		_http = new Http(Path.join([monosodium._mirror.url, url]));
+		var _http:Http = new Http(Path.join([monosodium._mirror.url, url]));
 
 		#if js if(!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
 			_http.addHeader("User-Agent", Http.USER_AGENT);
 
 		var auth:Null<String> = null;
+		if (monosodium.api_token != null && monosodium.username != null) {
+			auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
+		}
+
+		// Verbose Trces
 		if (monosodium.verbose) {
 			Utility.verboseTrace('Request : [$method] $url');
 			Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
-			if (monosodium.api_token != null && monosodium.username != null) {
-				auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
-				Utility.verboseTrace('Authorization : Basic ${Utility.censorString(auth)}');
-			}
+			auth != null ? Utility.verboseTrace('Authorization : Basic ${Utility.censorString(auth)}') : null;
 			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
 		}
 		
@@ -96,7 +99,7 @@ class RequestClient {
 		onError ??= (s) -> trace(s);
 		monosodium.verbose ? Utility.verboseTrace('Error : $error') : null;
 		onError(error);
-		Monosodium.limiter.enqueue(() -> {});
+		rate.enqueue(PASS);
 	}
 
 	function onStatus(status:Int, onStatus:Int->Void):Void {
@@ -104,7 +107,7 @@ class RequestClient {
 
 		monosodium.verbose ? Utility.verboseTrace('Status Code : $status') : null;
 		onStatus != null ? onStatus(status) : null;
-		Monosodium.limiter.enqueue(() -> {});
+		rate.enqueue(PASS);
 	}
 
 	// find an alternative that doesn't use reflect... :3
