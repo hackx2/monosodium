@@ -8,12 +8,12 @@ import monosodium.net.Http;
 import haxe.crypto.Base64;
 import haxe.io.Bytes;
 import haxe.http.HttpMethod;
-import monosodium.net.RateLimiter;
+import monosodium.net.ratelimiter.Limiter;
 import monosodium.net.RequestClient;
 
 // You are filled with determination
 class Monosodium {
-	private static var limiter = new RateLimiter(2);
+	private static var base_limiter:Limiter = new Limiter(2);
 	public static var defaultVerboseMode:Bool = false;
 
 	public var verbose:Bool = Monosodium.defaultVerboseMode;
