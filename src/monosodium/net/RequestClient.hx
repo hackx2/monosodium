@@ -17,7 +17,7 @@ import monosodium.net.ratelimiter.Limiter;
 @:access(monosodium.Monosodium)
 class RequestClient {
 	public var statusCode:Int = 0;
-	public var rate:Limiter = Monosodium.base_limiter; // 
+	public var rate:Limiter = Monosodium.defaultLimiter; // 
 
 	@:dox(hide) var monosodium:Monosodium;
 	public function new(monosodium:Monosodium):Void {

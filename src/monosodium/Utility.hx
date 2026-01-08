@@ -5,10 +5,10 @@ import haxe.PosInfos;
 class Utility {
 	@:allow(monosodium)
 	@:noPrivateAccess
-	inline static function verboseTrace(wa:Dynamic, ?posInfos:PosInfos):Void {
-		final str:String = '[  monosodium  |    VERBOSE    ] ' + wa;
+	inline static function verboseTrace(message:Dynamic, ?posInfos:PosInfos):Void {
+		final str:String = '[  monosodium  |    VERBOSE    ] $message';
 		#if js
-		if (js.Syntax.typeof(untyped console) != "undefined" && (untyped console).log != null)
+		if (js.Syntax.typeof(untyped console) != "undefined" && (untyped console).log != null) 
 			(untyped console).log(str);
 		#elseif lua
 		untyped __define_feature__("use._hx_print", _hx_print(str));
@@ -21,14 +21,17 @@ class Utility {
 
 	@:allow(monosodium)
 	@:noPrivateAccess
-	inline static function censorString(name:String):String {
-		if (name.length <= 1)
-			return "*";
+	inline static function censorString(input:String):String { // fast but lacks accuracy
+		if(input == null) return '';
+		if (input.length <= 1) return "*";
 
 		final buf:StringBuf = new StringBuf();
-		buf.add(name.charAt(0));
-		for (i in 1...name.length)
-			buf.add("*");
+
+		// append the first character
+		buf.add(input.charAt(0));
+
+		// iteratate thru the input's length, and append an asterix
+		for (i in 1...input.length) buf.add("*");
 
 		return buf.toString();
 	}

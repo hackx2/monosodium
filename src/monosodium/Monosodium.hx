@@ -13,7 +13,7 @@ import monosodium.net.RequestClient;
 
 // You are filled with determination
 class Monosodium {
-	private static var base_limiter:Limiter = new Limiter(2);
+	public static var defaultLimiter:Limiter = new Limiter(2);
 	public static var defaultVerboseMode:Bool = false;
 
 	public var verbose:Bool = Monosodium.defaultVerboseMode;
@@ -39,6 +39,7 @@ class Monosodium {
 		this.api_token = api_token;
 		this.username = username;
 
+		
 		final name:String = censor ? Utility.censorString(username) : username;
 		final token:String = censor ? Utility.censorString(api_token) : api_token;
 		(this.verbose ? Utility.verboseTrace('Credentials : ${name}:${token}@${_mirror}') : null);
