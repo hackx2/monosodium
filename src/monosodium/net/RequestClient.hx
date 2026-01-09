@@ -14,6 +14,7 @@ import monosodium.net.Http;
 import monosodium.endpoints.base.Endpoint;
 import monosodium.net.ratelimiter.Limiter;
 
+@:nullSafety
 @:access(monosodium.Monosodium)
 class RequestClient {
 	public var statusCode:Int = 0;
@@ -32,7 +33,7 @@ class RequestClient {
 	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
 		this.statusCode = 0;
 
-		var _http:Http = new Http(Path.join([monosodium._mirror.url, url]));
+		@:nullSafety(Off) var _http:Http = new Http(Path.join([monosodium._mirror.url, url]));
 
 		#if js if(!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
 			_http.addHeader("User-Agent", Http.USER_AGENT);
@@ -69,15 +70,15 @@ class RequestClient {
 		}
 
 		_http.onData = function(data:String):Void {
-			this.onData(data, onSuccess, onError);
+			this.onData(data, onSuccess, onError ?? s-> trace(s));
 		};
 
 		_http.onError = function(error:String):Void {
-			this.onError(error, onError);
+			this.onError(error, onError ?? s-> trace(s));
 		};
 
 		_http.onStatus = function(status:Int):Void {
-			this.onStatus(status, onStatus);
+			this.onStatus(status, onStatus?? s-> trace(s));
 		};
 
 		_http.method = method;
@@ -85,7 +86,6 @@ class RequestClient {
 	}
 
 	function onData(data:String, onSuccess:Dynamic->Void, onError:String->Void):Void {
-		onError ??= (s)->trace(s);
 		switch (statusCode) {
 			case 200:
 				try {
@@ -106,7 +106,6 @@ class RequestClient {
 	}
 
 	function onError(error:String, onError:String->Void):Void {
-		onError ??= (s) -> trace(s);
 		monosodium.verbose ? Utility.verboseTrace('Error : $error') : null;
 		onError(error);
 		rate.enqueue(PASS);

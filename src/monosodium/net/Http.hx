@@ -44,9 +44,6 @@ class Http {
 	public function new(url:String):Void this.url = url;
 
 	public function request(?post:Bool):Void {
-		#if nodejs // NODE.JS
-		// wip leave me alone,,,,, nodejs is weird as fuck
-		#else // SYS ???
 		final http = new HttpSource(url);
 		for (i in headers) {
 			http.addHeader(i.name, i.value);
@@ -82,7 +79,6 @@ class Http {
 		if (!err) {
 			@:privateAccess http.success(output.getBytes());
 		}
-		#end
 	}
 
 	public function send() {
@@ -108,8 +104,6 @@ class Http {
 
 	// EVENT HOOKS
 	dynamic public function onData(_:String):Void {}
-
 	dynamic public function onError(_:String):Void {}
-
 	dynamic public function onStatus(_:Int):Void {}
 }
