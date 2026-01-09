@@ -6,7 +6,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.base.Endpoint;
 
 @:route('/bans')
-class BansEndpoint extends Endpoint {
+final class BansEndpoint extends Endpoint {
 	public function search(params:Bans, callback:Array<Bans>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> callback(cast data), onError, null, params);
 	}

@@ -8,7 +8,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.base.Endpoint;
 
 @:route('/pools')
-class PoolsEndpoint extends Endpoint {
+final class PoolsEndpoint extends Endpoint {
 	public static inline final pool_element:String = '/pool_element';
 
 	public function search(params:Pools, callback:Array<Pool>->Void, ?onError:String->Void):Void {

@@ -7,7 +7,7 @@ import monosodium.endpoints.queries.AvoidPostings;
 import monosodium.endpoints.base.Endpoint;
 
 @:route('/avoid_posting')
-class AvoidPostingsEndpoint extends Endpoint {
+final class AvoidPostingsEndpoint extends Endpoint {
 	public function search(params:AvoidPostings, callback:Array<AvoidPosting>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
 			callback([for (v in (cast data : Array<Dynamic>)) AvoidPosting.sterilize(v)]);

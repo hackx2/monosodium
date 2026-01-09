@@ -13,7 +13,7 @@ import monosodium.endpoints.queries.artist.Create;
  * Janitor+/Admin+ endpoints are excluded from this class.
  */
 @:route('/artists')
-class ArtistsEndpoint extends Endpoint {
+final class ArtistsEndpoint extends Endpoint {
 	/**
 	 * Search for artists based on query parameters.
 	 * 
