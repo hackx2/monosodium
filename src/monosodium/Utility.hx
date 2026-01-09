@@ -1,12 +1,9 @@
 package monosodium;
 
-import haxe.DynamicAccess;
 import haxe.PosInfos;
 
-class Utility {
-	@:allow(monosodium)
-	@:noPrivateAccess
-	inline static function verboseTrace(message:Dynamic, ?posInfos:PosInfos):Void {
+final class Utility {
+	public inline static function verboseTrace(message:Dynamic, ?posInfos:PosInfos):Void {
 		final str:String = '[  monosodium  |    VERBOSE    ] $message';
 		#if js
 		if (js.Syntax.typeof(untyped console) != "undefined" && (untyped console).log != null) 
@@ -20,10 +17,7 @@ class Utility {
 		#end
 	}
 
-	@:allow(monosodium)
-	@:noPrivateAccess
-	@:pure
-	inline static function censorString(input:String):String { // fast but lacks accuracy
+	@:pure public inline static function censorString(input:String):String { // fast but lacks accuracy
 		if(input == null) return '';
 		if (input.length <= 1) return "*";
 
@@ -43,7 +37,7 @@ class Utility {
 		var result:Dynamic = {};
 		for (field in Reflect.fields(obj)) {
 			final value:Dynamic = Reflect.field(obj, field);
-			if (value == null) continue;
+			if (value == null) continue; // ignore null values
 
 			final key:String = prefix != "" ? prefix + '[$field]' : field;
 
