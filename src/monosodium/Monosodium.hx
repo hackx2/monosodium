@@ -71,7 +71,7 @@ class Monosodium {
 		return this;
 	}
 
-	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic):Void {
-		requestAPI.request(url, post, method, onSuccess, onError, onStatus, params);
+	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
+		requestAPI.request(url, post, method, onSuccess, onError, onStatus, params, body);
 	}
 }

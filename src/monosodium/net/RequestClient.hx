@@ -24,12 +24,12 @@ class RequestClient {
 		this.monosodium = monosodium;
 	}
 
-	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic):Void {
-		rate.enqueue(CALL(()->performRequest(url, post, method, onSuccess, onError, onStatus, params)));
+	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
+		rate.enqueue(CALL(()->performRequest(url, post, method, onSuccess, onError, onStatus, params, body)));
 	}
 
 	@:dox(hide)
-	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, params:Dynamic):Void {
+	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
 		this.statusCode = 0;
 
 		var _http:Http = new Http(Path.join([monosodium._mirror.url, url]));
@@ -50,12 +50,22 @@ class RequestClient {
 			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
 		}
 		
+		if(body != null)
+			_http.setPostData(Json.stringify(Utility.buildRequestBody(body)));
+
 		if (auth != null) {
 			_http.addHeader("Authorization", auth);
 		}
 
+		// if (params != null) {
+		// 	setParams(params, null, _http);
+		// }
+
 		if (params != null) {
-			setParams(params, null, _http);
+			final body:Dynamic = Utility.buildRequestBody(params);
+			for (field in Reflect.fields(body)) {
+				_http.setParameter(field, Std.string(Reflect.field(body, field)));
+			}
 		}
 
 		_http.onData = function(data:String):Void {
@@ -108,20 +118,5 @@ class RequestClient {
 		monosodium.verbose ? Utility.verboseTrace('Status Code : $status') : null;
 		onStatus != null ? onStatus(status) : null;
 		rate.enqueue(PASS);
-	}
-
-	// find an alternative that doesn't use reflect... :3
-	function setParams(obj:Dynamic, ?k:String = "", http:Http):Void {
-		for (field in Reflect.fields(obj)) {
-			final value:Dynamic = Reflect.field(obj, field);
-			if (value == null)
-				continue;
-			final key:String = k != "" ? k + '[$field]' : field;
-			if (Reflect.isObject(value) && !Std.isOfType(value, String)) {
-				setParams(value, key, http);
-			} else {
-				http.setParameter(key, Std.string(value));
-			}
-		}
 	}
 }
