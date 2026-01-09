@@ -8,7 +8,7 @@ import monosodium.endpoints.schemas.tag.Preview;
 import monosodium.endpoints.base.Endpoint;
 
 @:route('/tags')
-class TagsEndpoint extends Endpoint {
+final class TagsEndpoint extends Endpoint {
 	public function search(params:Tags, callback:Array<Tag>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
 			try {

@@ -6,7 +6,7 @@ import monosodium.endpoints.schemas.ArtistVersion;
 import monosodium.endpoints.base.Endpoint;
 
 @:route('/artist_versions')
-class ArtistVersionsEndpoint extends Endpoint {
+final class ArtistVersionsEndpoint extends Endpoint {
 	public function search(params:ArtistVersions, callback:Array<ArtistVersion>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
 			try {
