@@ -3,7 +3,7 @@ package monosodium;
 import haxe.PosInfos;
 
 final class Utility {
-	public inline static function verboseTrace(message:Dynamic, ?posInfos:PosInfos):Void {
+	@:noUsing public inline static function verboseTrace(message:Dynamic, ?posInfos:PosInfos):Void {
 		final str:String = '[  monosodium  |    VERBOSE    ] $message';
 		#if js
 		if (js.Syntax.typeof(untyped console) != "undefined" && (untyped console).log != null) 
@@ -17,7 +17,7 @@ final class Utility {
 		#end
 	}
 
-	@:pure public inline static function censorString(input:String):String { // fast but lacks accuracy
+	@:pure @:noUsing public inline static function censorString(input:String):String { // fast but lacks accuracy
 		if(input == null) return '';
 		if (input.length <= 1) return "*";
 
@@ -33,7 +33,7 @@ final class Utility {
 	}
 
 	// find an alternative that doesn't use reflect... :3
-	public static function buildRequestBody(obj:Dynamic, ?prefix:String = ""):Dynamic {
+	@:noUsing public static function buildRequestBody(obj:Dynamic, ?prefix:String = ""):Dynamic {
 		var result:Dynamic = {};
 		for (field in Reflect.fields(obj)) {
 			final value:Dynamic = Reflect.field(obj, field);

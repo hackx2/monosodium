@@ -43,7 +43,7 @@ class RequestClient {
 			auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
 		}
 
-		// Verbose Trces
+		// Verbose Traces
 		if (monosodium.verbose) {
 			Utility.verboseTrace('Request : [$method] $url');
 			Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
