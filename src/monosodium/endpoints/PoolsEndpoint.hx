@@ -1,5 +1,6 @@
 package monosodium.endpoints;
 
+import monosodium.endpoints.schemas.pools.Create;
 import haxe.http.HttpMethod;
 import monosodium.endpoints.queries.Pools;
 import monosodium.endpoints.schemas.Pool;
@@ -14,7 +15,7 @@ final class PoolsEndpoint extends Endpoint {
 	public function search(params:Pools, callback:Array<Pool>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
 			try {
-				callback((cast data : Array<Pools>).map(d -> return Pool.sterilize(d)));
+				callback((cast data : Array<Pool>));
 			} catch (e:Dynamic) {
 				if (onError != null) {
 					onError('Failed mapping pools : ${e}');
@@ -24,15 +25,15 @@ final class PoolsEndpoint extends Endpoint {
 	}
 
 	public function get(id:Int, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback(Pool.sterilize(data)), onError);
+		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback((cast data : Pool)), onError);
 	}
 
-	public function create(data:Dynamic, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${route}.json', true, HttpMethod.Post, callback, onError);
+	public function create(data:Create, callback:Pool->Void, ?onError:String->Void):Void {
+		api.request('${route}.json', true, HttpMethod.Post, callback, onError, null, null, data);
 	}
 
-	public function update(id:Int, data:Dynamic, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', true, HttpMethod.Patch, callback, onError);
+	public function update(id:Int, data:Create, callback:Pool->Void, ?onError:String->Void):Void {
+		api.request('${route}/${id}.json', true, HttpMethod.Patch, callback, onError, null, null, data);
 	}
 
 	public function delete(id:Int, callback:Void->Void, ?onError:String->Void):Void {
@@ -40,7 +41,7 @@ final class PoolsEndpoint extends Endpoint {
 	}
 
 	public function revert(id:Int, version_id:Int, callback:Void->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}/revert.json', true, HttpMethod.Put, d -> callback(), onError, null, {version_id: version_id});
+		api.request('${route}/${id}/revert.json', true, HttpMethod.Put, d -> callback(), onError, null, {id: id, version_id: version_id});
 	}
 
 	public function addPost(pool_id:Int, post_id:Int, callback:Pool->Void, ?onError:String->Void):Void {
