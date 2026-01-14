@@ -78,7 +78,7 @@ class RequestClient {
 		};
 
 		_http.onStatus = function(status:Int):Void {
-			this.onStatus(status, onStatus?? s-> trace(s));
+			this.onStatus(status, onStatus ?? s-> {}/* trace(s) */);
 		};
 
 		_http.method = method;
