@@ -5,6 +5,7 @@ import monosodium.endpoints.schemas.pools.Create;
 import monosodium.endpoints.queries.Pools;
 import monosodium.endpoints.base.Endpoint;
 import monosodium.endpoints.schemas.Pool;
+import monosodium.endpoints.schemas.pools.Recent;
 import monosodium.Monosodium;
 import haxe.http.HttpMethod;
 
@@ -21,7 +22,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * Search for pools based on query parameters.
 	 * 
 	 * @param params Search query parameters for filtering pools (e.g., id, order, name, etc)
-	 * @param callback Callback to handle an array of Artist object(s) returned from the API
+	 * @param callback Callback to handle an array of `Artist` object(s) returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
 	public function search(params:Pools, callback:Array<Pool>->Void, ?onError:String->Void):Void {
@@ -40,7 +41,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * Create a new pool.
 	 * 
 	 * @param params Pool creation parameters (e.g., name, notes, URLs, etc.)
-	 * @param callback Callback to handle the newly created Pool object returned from the API
+	 * @param callback Callback to handle the newly created `Pool` object returned from the API
 	 * @param onError (Optional) callback to handle errors that occur during the request
 	 */
 	public function create(data:Create, callback:Pool->Void, ?onError:String->Void):Void {
@@ -51,7 +52,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * Retrieve a pool by its ID.
 	 * 
 	 * @param id The unique ID of the pool to retrieve
-	 * @param callback Callback to handle the pool object returned from the API
+	 * @param callback Callback to handle the `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
 	public function get(id:Int, callback:Pool->Void, ?onError:String->Void):Void {
@@ -63,7 +64,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * 
 	 * @param id The unique ID of the pool to edit
 	 * @param params Updated pool parameters (e.g., name, notes, URLs, etc.)
-	 * @param callback Callback to handle the updated Pool object returned from the API
+	 * @param callback Callback to handle the updated `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
 	public function edit(id:Int, data:Create, callback:Pool->Void, ?onError:String->Void):Void {
@@ -76,7 +77,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * Add a post to the given pool.
 	 * 
 	 * @param params Add post parameters (e.g pool_id, pool_name, post_id, etc.)
-	 * @param callback Callback to handle the post object returned from the API
+	 * @param callback Callback to handle the `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
 	public function addPost(params:Element, callback:Pool->Void, ?onError:String->Void):Void {
@@ -87,7 +88,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * Removes a post from a pool.
 	 * 
 	 * @param params parameters
-	 * @param callback Callback to handle the post object returned from the API
+	 * @param callback Callback
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
 	public function removePost(params:Element, callback:Void->Void, ?onError:String->Void):Void {
@@ -101,7 +102,15 @@ final class PoolsEndpoint extends Endpoint {
 	 * @param callback Callback to handle the post object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function recent(params:Element, callback:Array<Dynamic>->Void, ?onError:String->Void):Void {
-		api.request('${elementRoute}/recent.json', false, HttpMethod.Get, callback, onError, null, null, params);
+	public function recent(params:Element, callback:Array<Recent>->Void, ?onError:String->Void):Void {
+		api.request('${elementRoute}/recent.json', false, HttpMethod.Get, data -> {
+			try {
+				callback((cast data : Array<Recent>));
+			} catch (e:Dynamic) {
+				if (onError != null) {
+					onError('Failed mapping recents : ${e}');
+				}
+			}
+		}, onError, null, null, params);
 	}
 }

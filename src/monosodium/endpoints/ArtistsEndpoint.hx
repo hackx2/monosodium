@@ -18,7 +18,7 @@ final class ArtistsEndpoint extends Endpoint {
 	 * Search for artists based on query parameters.
 	 * 
 	 * @param params Search query parameters for filtering artists (e.g., id, order, name, etc)
-	 * @param callback Callback to handle an array of Artist object(s) returned from the API
+	 * @param callback Callback to handle an array of `Artist` object(s) returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
 	public function search(params:Artists, callback:Array<Artist>->Void, ?onError:String->Void):Void {
