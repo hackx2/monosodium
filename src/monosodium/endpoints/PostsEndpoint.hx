@@ -1,7 +1,6 @@
 package monosodium.endpoints;
 
 import haxe.extern.EitherType;
-import monosodium.endpoints.schemas.post.Flat;
 import haxe.http.HttpMethod;
 import monosodium.endpoints.schemas.post.Post as PostSchema;
 import monosodium.endpoints.queries.Posts;
@@ -41,10 +40,10 @@ final class PostsEndpoint extends Endpoint {
 		}, onError);
 	}
 
-	public function random(?tags:EitherType<Array<String>, String>, callback:Flat->Void, ?onError:String->Void):Void {
+	public function random(?tags:EitherType<Array<String>, String>, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/random.json', false, HttpMethod.Get, data -> {
 			try {
-				callback(Flat.sterilize(data));
+				callback(PostSchema.sterilize(data.post));
 			} catch (e)
 				if (onError != null) {
 					onError('failed sterilizing : $e');
