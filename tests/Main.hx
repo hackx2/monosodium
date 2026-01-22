@@ -27,7 +27,7 @@ class Main {
 
 		// Get a random post using the tags "gay" and "-female", then turn it's file url
 		api.posts.random(["gay", "-female"], post -> {
-			trace(post.file_url);
+			trace(post.preview.url);
 		}, error -> trace(error));
 
 		// Get pool #12, then return it's name + post count

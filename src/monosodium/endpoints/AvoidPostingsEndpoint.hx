@@ -30,7 +30,7 @@ final class AvoidPostingsEndpoint extends Endpoint {
 		api.request('$route/${id}.json', true, HttpMethod.Patch, data -> callback(AvoidPosting.sterilize(data)), onError);
 	}
 
-	public function destory(id:String, callback:Void->Void, ?onError:String->Void):Void {
+	public function destroy(id:String, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('$route/${id}.json', true, HttpMethod.Delete, _ -> callback(), onError);
 	}
 
