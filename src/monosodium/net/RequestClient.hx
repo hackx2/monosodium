@@ -1,6 +1,5 @@
 package monosodium.net;
 
-import sys.Http;
 import monosodium.Utility;
 import haxe.Json;
 import haxe.crypto.Base64;
