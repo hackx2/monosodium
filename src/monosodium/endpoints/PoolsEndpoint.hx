@@ -55,7 +55,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * @param callback Callback to handle the `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function get(id:Int, callback:Pool->Void, ?onError:String->Void):Void {
+	public function get(id:ID, callback:Pool->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback((cast data : Pool)), onError);
 	}
 
@@ -67,7 +67,7 @@ final class PoolsEndpoint extends Endpoint {
 	 * @param callback Callback to handle the updated `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function edit(id:Int, data:Create, callback:Pool->Void, ?onError:String->Void):Void {
+	public function edit(id:ID, data:Create, callback:Pool->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', true, HttpMethod.Patch, callback, onError, null, null, {pool: data});
 	}
 

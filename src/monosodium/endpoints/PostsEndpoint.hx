@@ -1,5 +1,6 @@
 package monosodium.endpoints;
 
+import monosodium.endpoints.types.ID;
 import haxe.extern.EitherType;
 import haxe.http.HttpMethod;
 import monosodium.endpoints.schemas.post.Post as PostSchema;
@@ -30,7 +31,7 @@ final class PostsEndpoint extends Endpoint {
 		}, onError, null, query);
 	}
 
-	public function get(id:Int, callback:PostSchema->Void, ?onError:String->Void):Void {
+	public function get(id:ID, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> {
 			try
 				callback(PostSchema.sterilize(data.post))
@@ -53,7 +54,7 @@ final class PostsEndpoint extends Endpoint {
 		});
 	}
 
-	public function edit(id:Int, postEdit:Dynamic, callback:PostSchema->Void, ?onError:String->Void):Void {
+	public function edit(id:ID, postEdit:Dynamic, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', true, HttpMethod.Patch, data -> {
 			try {
 				callback(PostSchema.sterilize(data));
@@ -65,7 +66,7 @@ final class PostsEndpoint extends Endpoint {
 		}, onError, null, {post: postEdit});
 	}
 
-	public function updateIqdb(id:Int, callback:PostSchema->Void, ?onError:String->Void):Void {
+	public function editIqdb(id:ID, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/update_iqdb.json', true, HttpMethod.Get, data -> {
 			try {
 				callback(PostSchema.sterilize(data.post));
@@ -77,7 +78,7 @@ final class PostsEndpoint extends Endpoint {
 		}, onError);
 	}
 
-	public function markAsTranslated(id:Int, translationCheck:Bool, partiallyTranslated:Bool, callback:PostSchema->Void, ?onError:String->Void):Void {
+	public function markAsTranslated(id:ID, translationCheck:Bool, partiallyTranslated:Bool, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/mark_as_translated.json', true, HttpMethod.Post, data -> {
 			try {
 				callback(PostSchema.sterilize(data.post));
@@ -92,15 +93,15 @@ final class PostsEndpoint extends Endpoint {
 		});
 	}
 
-	public function copyNotes(id:Int, otherPostId:Int, callback:Void->Void, ?onError:String->Void):Void {
+	public function copyNotes(id:ID, otherPostId:Int, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/copy_notes.json', true, HttpMethod.Put, _ -> callback(), onError, null, {other_post_id: otherPostId});
 	}
 
-	public function revert(id:Int, versionId:Int, callback:Void->Void, ?onError:String->Void):Void {
+	public function revert(id:ID, versionId:Int, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}/revert.json?version_id=${versionId}', true, HttpMethod.Post, _ -> callback(), onError);
 	}
 
-	public function showSeq(id:Int, dir:String, callback:PostSchema->Void, ?onError:String->Void):Void {
+	public function showSeq(id:ID, dir:String, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}/show_seq.json?seq=$dir', false, HttpMethod.Get, data -> {
 			try {
 				callback(PostSchema.sterilize(data.post));
@@ -112,7 +113,7 @@ final class PostsEndpoint extends Endpoint {
 		}, onError);
 	}
 
-	public function unflag(id:Int, callback:Void->Void, ?onError:String->Void):Void {
+	public function unflag(id:ID, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}/flags.json', true, HttpMethod.Delete, _ -> callback(), onError, null, {approval: "approve"});
 	}
 }
