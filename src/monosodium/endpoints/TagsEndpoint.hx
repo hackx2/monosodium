@@ -21,7 +21,7 @@ final class TagsEndpoint extends Endpoint {
 		}, onError, null, params);
 	}
 
-	public function get(id:Int, callback:Tag->Void, ?onError:String->Void):Void {
+	public function get(id:ID, callback:Tag->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> {
 			try {
 				callback(Tag.sterilize(data));
@@ -45,17 +45,17 @@ final class TagsEndpoint extends Endpoint {
 		}, onError);
 	}
 
-	public function edit(id:Int, category:Null<Int>, is_locked:Null<Bool>, callback:Void->Void, ?onError:String->Void):Void {
+	public function edit(id:ID, category:Null<Int>, is_locked:Null<Bool>, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', true, HttpMethod.Patch, _ -> callback(), onError, null, {
 			tag: {category: category, is_locked: is_locked}
 		});
 	}
 
-	public function delete(id:Int, callback:Void->Void, ?onError:String->Void):Void {
+	public function delete(id:ID, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('$route/${id}.json', false, HttpMethod.Delete, _ -> callback(), onError);
 	}
 
-	public function getCorrection(id:Int, callback:Correction->Void, ?onError:String->Void):Void {
+	public function getCorrection(id:ID, callback:Correction->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/correction.json', false, HttpMethod.Get, data -> {
 			try {
 				callback(Correction.sterilize(data));
@@ -67,7 +67,7 @@ final class TagsEndpoint extends Endpoint {
 		}, onError);
 	}
 
-	public function correct(id:Int, commit:String, callback:Void->Void, ?onError:String->Void):Void {
+	public function correct(id:ID, commit:String, callback:Void->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/correction.json', true, HttpMethod.Post, _ -> callback(), onError, null, {commit: commit});
 	}
 

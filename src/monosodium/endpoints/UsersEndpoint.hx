@@ -19,7 +19,7 @@ final class UsersEndpoint extends Endpoint {
 		}, onError, null, query);
 	}
 
-	public function get(id:String, callback:User->Void, ?onError:String->Void):Void {
+	public function get(id:ID, callback:User->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> {
 			try {
 				callback(User.sterilize(data));
@@ -31,7 +31,7 @@ final class UsersEndpoint extends Endpoint {
 		}, onError);
 	}
 
-	public function edit(id:Int, userEdit:Dynamic, callback:User->Void, ?onError:String->Void):Void {
+	public function edit(id:ID, userEdit:Dynamic, callback:User->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', true, HttpMethod.Patch, data -> {
 			try {
 				callback(User.sterilize(data));
@@ -43,7 +43,7 @@ final class UsersEndpoint extends Endpoint {
 		}, onError, null, {user: userEdit});
 	}
 
-	public function uploadLimit(id:Int, callback:User->Void, ?onError:String->Void):Void {
+	public function uploadLimit(id:ID, callback:User->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/upload_limit.json', false, HttpMethod.Get, data -> {
 			try {
 				callback(User.sterilize(data));

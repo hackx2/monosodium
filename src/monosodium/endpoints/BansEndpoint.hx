@@ -11,7 +11,7 @@ final class BansEndpoint extends Endpoint {
 		api.request('${route}.json', false, HttpMethod.Get, data -> callback(cast data), onError, null, params);
 	}
 
-	public function get(id:Int, callback:Ban->Void, ?onError:String->Void):Void {
+	public function get(id:ID, callback:Ban->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback(data), onError);
 	}
 }

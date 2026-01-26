@@ -51,7 +51,7 @@ final class ArtistsEndpoint extends Endpoint {
 	 * @param callback Callback to handle the Artist object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function get(id:Int, callback:Artist->Void, ?onError:String->Void):Void {
+	public function get(id:ID, callback:Artist->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback(Artist.sterilize(data)), onError);
 	}
 
@@ -63,7 +63,7 @@ final class ArtistsEndpoint extends Endpoint {
 	 * @param callback Callback to handle the updated Artist object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function edit(id:Int, params:Create, callback:Artist->Void, ?onError:String->Void):Void {
+	public function edit(id:ID, params:Create, callback:Artist->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', true, HttpMethod.Patch, data -> callback(Artist.sterilize(data)), onError, null, {artist: params});
 	}
 }
