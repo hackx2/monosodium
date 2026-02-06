@@ -1,8 +1,6 @@
 package monosodium.endpoints.schemas;
 
-@:structInit
-@:publicFields
-final class Ban {
+typedef Ban = {
 	var id:Int;
 	var user_id:Int;
 	var reason:String;
