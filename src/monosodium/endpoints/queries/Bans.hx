@@ -2,9 +2,11 @@ package monosodium.endpoints.queries;
 
 import monosodium.endpoints.base.Query;
 
-typedef Bans = {
-	> Query,
-
+typedef Bans = #if (haxe_ver >= 4.0) Query & #end
+{
+	#if (haxe_ver < 4.0)
+	> Query
+	#end
 	@:optional var search_id:Int;
 	@:optional var search_order:String;
 	@:optional var search_banner_id:String;
