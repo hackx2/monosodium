@@ -2,9 +2,11 @@ package monosodium.endpoints.queries;
 
 import monosodium.endpoints.base.Query;
 
-typedef AvoidPostingVersions = {
-	> Query,
-
+typedef AvoidPostingVersions = #if (haxe_ver >= 4.0) Query & #end
+{
+	#if (haxe_ver < 4.0)
+	> Query
+	#end
 	@:optional var search:{
 		@:optional var id:Null<Int>;
 		@:optional var ip_addr:Null<String>;

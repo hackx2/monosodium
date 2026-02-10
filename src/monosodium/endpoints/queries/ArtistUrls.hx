@@ -3,9 +3,11 @@ package monosodium.endpoints.queries;
 import monosodium.endpoints.schemas.Artist;
 import monosodium.endpoints.base.Query;
 
-typedef ArtistUrls = {
-	> Query,
-
+typedef ArtistUrls = #if (haxe_ver >= 4.0) Query & #end
+{
+	#if (haxe_ver < 4.0)
+	> Query
+	#end
 	@:optional var search:{
 		@:optional var id:Int;
 		@:optional var order:String;
@@ -14,7 +16,6 @@ typedef ArtistUrls = {
 		@:optional var is_active:Bool;
 		@:optional var url:String;
 		@:optional var normalized_url:String;
-		
 		// Legacy nested search for artist. Supports the same parameters as /artists.json
 		@:deprecated @:optional var artist:Null<Artist>;
 		// Legacy name for search[url]

@@ -3,9 +3,11 @@ package monosodium.endpoints.queries;
 import monosodium.endpoints.types.PoolCategory;
 import monosodium.endpoints.base.Query;
 
-typedef Pools = {
-	> Query,
-
+typedef Pools = #if (haxe_ver >= 4.0) Query & #end
+{
+	#if (haxe_ver < 4.0)
+	> Query
+	#end
 	@:optional var search:{
 		@:optional var id:Int;
 		@:optional var order:String;
