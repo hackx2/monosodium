@@ -10,7 +10,7 @@ import monosodium.endpoints.base.Endpoint;
  * This endpoint class provides methods to `search`, and `get`.
  */
 @:route('/avoid_posting')
-final class AvoidPostingsEndpoint extends Endpoint {
+final class AvoidPostingsEndpoint implements Endpoint {
 	/**
 	 * Search for avoid posting entries based on query parameters.
 	 * 

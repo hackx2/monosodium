@@ -12,7 +12,7 @@ using StringTools;
 
 // we're upto here ^w^
 @:route('/posts')
-final class PostsEndpoint extends Endpoint {
+final class PostsEndpoint implements Endpoint {
 	public function upload(post:Upload, callback:Dynamic->Void, ?onError:String->Void):Void {
 		api.request('/uploads.json', true, HttpMethod.Post, response -> {
 			callback(response);

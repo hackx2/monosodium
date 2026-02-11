@@ -10,7 +10,7 @@ import monosodium.endpoints.base.Endpoint;
  * This endpoint class provides methods to **search** for artist URLs.
  */
 @:route("/artist_urls")
-final class ArtistUrlsEndpoint extends Endpoint {
+final class ArtistUrlsEndpoint implements Endpoint {
 	/**
 	 * Search for artist URL(s) based on query parameters.
 	 * 

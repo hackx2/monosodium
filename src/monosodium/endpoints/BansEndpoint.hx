@@ -10,7 +10,7 @@ import monosodium.endpoints.base.Endpoint;
  * This endpoint class provides methods to `search`, and `get`.
  */
 @:route('/bans')
-final class BansEndpoint extends Endpoint {
+final class BansEndpoint implements Endpoint {
 	/**
 	 * Search for user ban entries based on query parameters.
 	 * 

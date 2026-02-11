@@ -6,7 +6,7 @@ import monosodium.endpoints.queries.Users;
 import monosodium.endpoints.base.Endpoint;
 
 @:route('/users')
-final class UsersEndpoint extends Endpoint {
+final class UsersEndpoint implements Endpoint {
 	public function search(query:Users, callback:Array<User>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
 			try {
