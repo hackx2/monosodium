@@ -1,19 +1,25 @@
 package monosodium.net;
 
-import monosodium.Utility;
 import haxe.Json;
-import haxe.crypto.Base64;
-import haxe.io.Bytes;
 import haxe.http.HttpMethod;
-import monosodium.endpoints.responses.Result;
-import monosodium.Monosodium;
-import monosodium.Utility;
 import haxe.io.Path;
-import monosodium.net.Http;
-import monosodium.endpoints.base.Endpoint;
-import monosodium.net.ratelimiter.Limiter;
 
-@:nullSafety
+import monosodium.Utility;
+import monosodium.net.Http;
+import monosodium.Monosodium;
+import monosodium.net.ratelimiter.Limiter;
+import monosodium.endpoints.responses.Result;
+
+#if nodejs
+import haxe.DynamicAccess;
+import js.node.buffer.Buffer;
+import js.node.url.URLSearchParams;
+#else
+import haxe.io.Bytes;
+import haxe.crypto.Base64;
+#end
+
+@:nullSafety(Strict)
 @:access(monosodium.Monosodium)
 class RequestClient {
 	public var statusCode:Int = 0;
@@ -24,18 +30,78 @@ class RequestClient {
 		this.monosodium = monosodium;
 	}
 
-	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
-		rate.enqueue(CALL(()->performRequest(url, post, method, onSuccess, onError, onStatus, params, body)));
+	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic,
+			?body:Dynamic):Void {
+		rate.enqueue(CALL(() -> performRequest(url, post, method, onSuccess, onError, onStatus, params, body)));
 	}
 
 	@:dox(hide)
-	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
+	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void,
+			?params:Dynamic, ?body:Dynamic):Void {
 		this.statusCode = 0;
 
-		@:nullSafety(Off) var _http:Http = new Http(Path.join([monosodium._mirror.url, url]));
+		@:nullSafety(Off) var fullUrl:String = Path.join([monosodium._mirror.url, url]);
 
-		#if js if(!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
-			_http.addHeader("User-Agent", Http.USER_AGENT);
+		#if nodejs
+		if (params != null && (method == Get || method == Head || method == Delete)) {
+			final searchParams = new URLSearchParams(Utility.buildRequestBody(params));
+			fullUrl += "?" + searchParams.toString();
+		}
+
+		final headers:DynamicAccess<String> = {
+			"User-Agent": Http.USER_AGENT,
+			"Accept": "application/json"
+		};
+
+		var authCensored:Null<String> = null;
+		if (monosodium.api_token != null && monosodium.username != null) {
+			final authRaw:String = '${monosodium.username}:${monosodium.api_token}';
+			final b64:String = Buffer.from(authRaw).toString('base64');
+			headers.set("Authorization", 'Basic ${b64}');
+			authCensored = "Basic " + Utility.censorString(b64);
+		}
+
+		if (monosodium.verbose) {
+			Utility.verboseTrace('Request : [$method] $url');
+			Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
+			authCensored != null ? Utility.verboseTrace('Authorization : $authCensored') : null;
+			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
+		}
+
+		final options:Dynamic = {
+			method: Std.string(method).toUpperCase(),
+			headers: headers
+		};
+
+		if (body != null) {
+			options.body = Json.stringify(Utility.buildRequestBody(body));
+			headers.set("Content-Type", "application/json");
+		} else if (params != null) {
+			switch (method) {
+				case Post | Put | Patch | Delete:
+					options.body = Json.stringify(Utility.buildRequestBody(params));
+					headers.set("Content-Type", "application/json");
+				default:
+			}
+		}
+
+		final p = untyped fetch(fullUrl, options);
+		p.then((res:Dynamic) -> {
+			@:nullSafety(Off) this.onStatus(res.status, onStatus);
+			return res.text();
+		}).then((data:String) -> {
+			this.onData(data, onSuccess, onError ?? (s->trace(s)));
+		});
+
+		// Reflect (field / callMethod) causes an overhead, while this doesn't
+		untyped p["catch"]((err:Dynamic) -> {
+			@:nullSafety(Off) this.onError(Std.string(err), onError ?? (s->trace(s)));
+		});
+		#else
+		@:nullSafety(Off) var _http:Http = new Http(fullUrl);
+
+		#if js if (!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
+		_http.addHeader("User-Agent", Http.USER_AGENT);
 
 		var auth:Null<String> = null;
 		if (monosodium.api_token != null && monosodium.username != null) {
@@ -69,19 +135,20 @@ class RequestClient {
 		}
 
 		_http.onData = function(data:String):Void {
-			this.onData(data, onSuccess, onError ?? s-> trace(s));
+			this.onData(data, onSuccess, onError ?? s -> trace(s));
 		};
 
 		_http.onError = function(error:String):Void {
-			this.onError(error, onError ?? s-> trace(s));
+			this.onError(error, onError ?? s -> trace(s));
 		};
 
 		_http.onStatus = function(status:Int):Void {
-			this.onStatus(status, onStatus ?? s-> {}/* trace(s) */);
+			this.onStatus(status, onStatus ?? s -> {} /* trace(s) */);
 		};
 
 		_http.method = method;
 		_http.request(post);
+		#end
 	}
 
 	function onData(data:String, onSuccess:Dynamic->Void, onError:String->Void):Void {
@@ -115,6 +182,6 @@ class RequestClient {
 
 		monosodium.verbose ? Utility.verboseTrace('Status Code : $status') : null;
 		onStatus != null ? onStatus(status) : null;
-		rate.enqueue(PASS);
+		#if !nodejs rate.enqueue(PASS); #end // maybe??...
 	}
 }
