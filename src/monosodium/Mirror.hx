@@ -7,5 +7,7 @@ enum abstract Mirror(String) from String to String {
 
 	/// find an alternative 
 	public var url(get,never):String; // https://<mirror>.net
-	@:noCompletion function get_url():String return 'https://$this.net';
+	@:noCompletion inline function get_url():String {
+		return untyped "https://" + this + ".net";
+	};
 }
