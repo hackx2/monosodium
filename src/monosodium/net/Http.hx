@@ -1,5 +1,7 @@
 package monosodium.net;
 
+#if !nodejs
+
 import haxe.io.Bytes;
 import haxe.DynamicAccess;
 import haxe.io.BytesOutput;
@@ -8,19 +10,14 @@ import monosodium.net.Header;
 import haxe.extern.EitherType;
 import monosodium.net.Parameter;
 import haxe.exceptions.NotImplementedException;
-#if nodejs
-import js.node.Url;
-import js.node.Https;
-import js.node.http.IncomingMessage;
-import js.node.http.ClientRequest;
-#else
 import haxe.Http as HttpSource;
-#end
 #if sys
 import sys.net.Socket;
 #end
 
 using StringTools;
+
+#end
 
 // SUPPORTS: sys, nodejs
 // SYS: YES
@@ -28,7 +25,7 @@ using StringTools;
 // But nobody came
 class Http {
 	public static inline final USER_AGENT:String = 'hackx2@monosodium/1.0';
-
+#if !nodejs
 	public var url:Null<String> = null;
 	public var method:HttpMethod = Get;
 	public var headers:Array<Header> = [];
@@ -106,4 +103,5 @@ class Http {
 	dynamic public function onData(_:String):Void {}
 	dynamic public function onError(_:String):Void {}
 	dynamic public function onStatus(_:Int):Void {}
+	#end
 }

@@ -52,7 +52,11 @@ class Limiter {
 
 		if (hasPending()) {
 			final delayMs:Int = Std.int((1 / rate) * 1000);
+			#if nodejs
+			js.Lib.global.setTimeout(tick, delayMs);
+			#else
 			Timer.delay(tick, delayMs);
+			#end
 		} else
 			running = false;
 	}
