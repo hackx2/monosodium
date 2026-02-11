@@ -8,6 +8,7 @@ import monosodium.endpoints.schemas.Pool;
 import monosodium.endpoints.schemas.pools.Recent;
 import monosodium.Monosodium;
 import haxe.http.HttpMethod;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/pools` & '/pool_element' API route.

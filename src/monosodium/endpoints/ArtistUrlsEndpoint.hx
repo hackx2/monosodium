@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.queries.ArtistUrls;
 import monosodium.endpoints.schemas.ArtistUrl;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/artist_urls` API route.

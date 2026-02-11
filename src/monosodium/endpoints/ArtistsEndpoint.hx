@@ -5,6 +5,7 @@ import monosodium.endpoints.base.Endpoint;
 import monosodium.endpoints.schemas.Artist;
 import monosodium.endpoints.queries.Artists;
 import monosodium.endpoints.queries.artist.Create;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/artists` API route.
