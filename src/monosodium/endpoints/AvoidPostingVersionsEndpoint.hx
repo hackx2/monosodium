@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.queries.AvoidPostingVersions;
 import monosodium.endpoints.schemas.AvoidPostingVersion;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/avoid_posting_versions` API route.

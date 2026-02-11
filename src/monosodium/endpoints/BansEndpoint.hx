@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.queries.Bans;
 import monosodium.endpoints.schemas.Ban;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/bans` API route.

@@ -6,6 +6,7 @@ import monosodium.endpoints.schemas.tag.Tag;
 import monosodium.endpoints.schemas.tag.Correction;
 import monosodium.endpoints.schemas.tag.Preview;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 @:route('/tags')
 final class TagsEndpoint implements Endpoint {

@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.schemas.User;
 import monosodium.endpoints.queries.Users;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 @:route('/users')
 final class UsersEndpoint implements Endpoint {

@@ -7,6 +7,7 @@ import monosodium.endpoints.schemas.post.Post as PostSchema;
 import monosodium.endpoints.queries.Posts;
 import monosodium.endpoints.schemas.post.Upload;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 using StringTools;
 

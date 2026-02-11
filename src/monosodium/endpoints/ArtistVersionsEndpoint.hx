@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.queries.ArtistVersions;
 import monosodium.endpoints.schemas.ArtistVersion;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/artist_versions` API route.

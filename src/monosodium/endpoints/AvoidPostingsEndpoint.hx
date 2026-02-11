@@ -4,6 +4,7 @@ import haxe.http.HttpMethod;
 import monosodium.endpoints.schemas.AvoidPosting;
 import monosodium.endpoints.queries.AvoidPostings;
 import monosodium.endpoints.base.Endpoint;
+import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/avoid_posting` API route.
