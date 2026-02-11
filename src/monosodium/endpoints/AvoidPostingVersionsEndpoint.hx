@@ -10,7 +10,7 @@ import monosodium.endpoints.base.Endpoint;
  * This endpoint class provides a method to `search`.
  */
 @:route('/avoid_posting_versions')
-final class AvoidPostingVersionsEndpoint extends Endpoint {
+final class AvoidPostingVersionsEndpoint implements Endpoint {
 	/**
 	 * Search for avoid posting versions entries based on query parameters.
 	 * 

@@ -17,7 +17,7 @@ import haxe.http.HttpMethod;
  * Janitor+/Admin+ endpoints are excluded from this class.
  */
 @:route('/pools')
-final class PoolsEndpoint extends Endpoint {
+final class PoolsEndpoint implements Endpoint {
 	/**
 	 * Search for pools based on query parameters.
 	 * 
