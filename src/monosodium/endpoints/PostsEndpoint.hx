@@ -22,7 +22,7 @@ final class PostsEndpoint extends Endpoint {
 	public function search(query:Posts, callback:Array<PostSchema>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
 			try {
-				callback((data.posts : Array<Dynamic>).map(PostSchema.sterilize));
+				callback((data.posts : Array<PostSchema>));
 			} catch (e) {
 				if (onError != null) {
 					onError('failed sterilizing : $e');
@@ -34,7 +34,7 @@ final class PostsEndpoint extends Endpoint {
 	public function get(id:ID, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> {
 			try
-				callback(PostSchema.sterilize(data.post))
+				callback((data.post : PostSchema))
 			catch (e)
 				if (onError != null)
 					onError('failed sterilizing : $e');
@@ -44,7 +44,7 @@ final class PostsEndpoint extends Endpoint {
 	public function random(?tags:EitherType<Array<String>, String>, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/random.json', false, HttpMethod.Get, data -> {
 			try {
-				callback(PostSchema.sterilize(data.post));
+				callback((data.post : PostSchema));
 			} catch (e)
 				if (onError != null) {
 					onError('failed sterilizing : $e');
@@ -57,7 +57,7 @@ final class PostsEndpoint extends Endpoint {
 	public function edit(id:ID, postEdit:Dynamic, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}.json', true, HttpMethod.Patch, data -> {
 			try {
-				callback(PostSchema.sterilize(data));
+				callback((data.post : PostSchema));
 			} catch (e) {
 				if (onError != null) {
 					onError('failed sterilizing : $e');
@@ -69,7 +69,7 @@ final class PostsEndpoint extends Endpoint {
 	public function editIqdb(id:ID, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/update_iqdb.json', true, HttpMethod.Get, data -> {
 			try {
-				callback(PostSchema.sterilize(data.post));
+				callback((data.post : PostSchema));
 			} catch (e:Dynamic) {
 				if (onError != null) {
 					onError('failed sterilizing : $e');
@@ -81,7 +81,7 @@ final class PostsEndpoint extends Endpoint {
 	public function markAsTranslated(id:ID, translationCheck:Bool, partiallyTranslated:Bool, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/$id/mark_as_translated.json', true, HttpMethod.Post, data -> {
 			try {
-				callback(PostSchema.sterilize(data.post));
+				callback((data.post : PostSchema));
 			} catch (e) {
 				if (onError != null) {
 					onError('failed sterilizing : $e');
@@ -104,7 +104,7 @@ final class PostsEndpoint extends Endpoint {
 	public function showSeq(id:ID, dir:String, callback:PostSchema->Void, ?onError:String->Void):Void {
 		api.request('${route}/${id}/show_seq.json?seq=$dir', false, HttpMethod.Get, data -> {
 			try {
-				callback(PostSchema.sterilize(data.post));
+				callback((data.post : PostSchema));
 			} catch (error:Dynamic) {
 				if (onError != null) {
 					onError('failed sterilizing post seq : $error');
