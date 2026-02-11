@@ -1,8 +1,6 @@
 package monosodium.endpoints.schemas;
 
-@:structInit
-@:publicFields
-class Url {
+typedef Url = {
 	var id:Int;
 	var artist_id:Int;
 	var url:String;

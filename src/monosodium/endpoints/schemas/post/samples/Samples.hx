@@ -7,9 +7,11 @@ final class Samples {
 	var _720p:VideoVariants; // 720p
 
 	static function sterilize(d:Dynamic):Samples {
-		return {
-			_480p: Reflect.hasField(d, "480p") ? VideoVariants.sterilize(Reflect.field(d, "480p")) : null,
-			_720p: Reflect.hasField(d, "720p") ? VideoVariants.sterilize(Reflect.field(d, "720p")) : null
+		if (d == null) return null;
+
+		return untyped {
+			_480p: (d.__field__("480p") != null) ? VideoVariants.sterilize(d.__field__("480p")) : null,
+			_720p: (d.__field__("720p") != null) ? VideoVariants.sterilize(d.__field__("720p")) : null
 		};
 	}
 }

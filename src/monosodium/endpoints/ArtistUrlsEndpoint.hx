@@ -20,7 +20,7 @@ final class ArtistUrlsEndpoint extends Endpoint {
 	 */
 	public function search(query:ArtistUrls, callback:Array<ArtistUrl>->Void, ?onError:String->Void):Void {
 		api.request('${route}.json', false, HttpMethod.Get, data -> {
-			callback([for (v in (cast data : Array<Dynamic>)) ArtistUrl.sterilize(v)]);
+			callback((data : Array<ArtistUrl>));
 		}, onError, null, query);
 	}
 }

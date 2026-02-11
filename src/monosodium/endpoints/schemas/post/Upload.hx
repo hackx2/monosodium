@@ -1,8 +1,6 @@
 package monosodium.endpoints.schemas.post;
 
-@:structInit
-@:publicFields
-final class Upload {
+typedef Upload = {
 	var file:Null<String>;
 	var direct_url:Null<String>;
 	var tag_string:String;
