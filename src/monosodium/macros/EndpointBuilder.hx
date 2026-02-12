@@ -1,11 +1,13 @@
 package monosodium.macros;
 
+#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
 class EndpointBuilder {
 	public static function build():Array<Field> {
-		final fields = Context.getBuildFields();
+		final fields:Array<Field> = Context.getBuildFields();
+		final currentPosition:Position = Context.currentPos();
 
 		var hasApi:Bool = false, hasNew:Bool = false;
 		for (f in fields) {
@@ -20,8 +22,9 @@ class EndpointBuilder {
 				name: "api",
 				access: [APublic],
 				kind: FVar(macro :monosodium.Monosodium),
-				meta: [{name: ":dox", params: [macro hide], pos: Context.currentPos()}],
-				pos: Context.currentPos()
+				meta: [{name: ":dox", params: [macro hide], pos: currentPosition}],
+				pos: currentPosition,
+				doc: 'parent monosodium class reference'
 			});
 		}
 
@@ -36,10 +39,12 @@ class EndpointBuilder {
 						untyped this.api = api;
 					}
 				}),
-				pos: Context.currentPos()
+				meta: [{name: ":dox", params: [macro hide], pos: currentPosition}],
+				pos: currentPosition
 			});
 		}
 
 		return fields;
 	}
 }
+#end
