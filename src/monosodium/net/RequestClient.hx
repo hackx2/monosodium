@@ -1,13 +1,12 @@
 package monosodium.net;
 
-import haxe.Json;
-import haxe.http.HttpMethod;
 import haxe.io.Path;
+import haxe.http.HttpMethod;
 
 import monosodium.Utility;
 import monosodium.net.Http;
 import monosodium.Monosodium;
-import monosodium.net.ratelimiter.Limiter;
+import monosodium.net.ratelimiter.Limiter as RateLimiter;
 import monosodium.endpoints.responses.Result;
 
 #if nodejs
@@ -15,6 +14,7 @@ import haxe.DynamicAccess;
 import js.node.buffer.Buffer;
 import js.node.url.URLSearchParams;
 #else
+import haxe.Json;
 import haxe.io.Bytes;
 import haxe.crypto.Base64;
 #end
@@ -23,24 +23,25 @@ import haxe.crypto.Base64;
 @:access(monosodium.Monosodium)
 class RequestClient {
 	public var statusCode:Int = 0;
-	public var rate:Limiter = Monosodium.defaultLimiter; // 
+	public var rate:RateLimiter = Monosodium.defaultLimiter; //
 
 	@:dox(hide) var monosodium:Monosodium;
-	public function new(monosodium:Monosodium):Void {
-		this.monosodium = monosodium;
-	}
+	public function new(monosodium:Monosodium):Void { this.monosodium = monosodium; }
 
-	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic,
-			?body:Dynamic):Void {
+	public function request(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
 		rate.enqueue(CALL(() -> performRequest(url, post, method, onSuccess, onError, onStatus, params, body)));
 	}
 
 	@:dox(hide)
-	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void,
-			?params:Dynamic, ?body:Dynamic):Void {
+	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
 		this.statusCode = 0;
 
 		@:nullSafety(Off) var fullUrl:String = Path.join([monosodium._mirror.url, url]);
+
+		var rawAuth:Null<String> = null;
+		if ((monosodium.api_token != null && monosodium.username != null)) {
+			rawAuth = '${monosodium.username}:${monosodium.api_token}';
+		}
 
 		#if nodejs
 		if (params != null && (method == Get || method == Head || method == Delete)) {
@@ -53,20 +54,11 @@ class RequestClient {
 			"Accept": "application/json"
 		};
 
-		var authCensored:Null<String> = null;
-		if (monosodium.api_token != null && monosodium.username != null) {
-			final authRaw:String = '${monosodium.username}:${monosodium.api_token}';
-			final b64:String = Buffer.from(authRaw).toString('base64');
-			headers.set("Authorization", 'Basic ${b64}');
-			authCensored = "Basic " + Utility.censorString(b64);
+		if (rawAuth != null) {
+			headers.set("Authorization", 'Basic ${untyped btoa(rawAuth)}');
 		}
 
-		if (monosodium.verbose) {
-			Utility.verboseTrace('Request : [$method] $url');
-			Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
-			authCensored != null ? Utility.verboseTrace('Authorization : $authCensored') : null;
-			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
-		}
+		fetchVerboseTrace(method, params, url);
 
 		final options:Dynamic = {
 			method: Std.string(method).toUpperCase(),
@@ -74,12 +66,12 @@ class RequestClient {
 		};
 
 		if (body != null) {
-			options.body = Json.stringify(Utility.buildRequestBody(body));
+			options.body = (untyped JSON).stringify(Utility.buildRequestBody(body));
 			headers.set("Content-Type", "application/json");
 		} else if (params != null) {
 			switch (method) {
 				case Post | Put | Patch | Delete:
-					options.body = Json.stringify(Utility.buildRequestBody(params));
+					options.body = (untyped JSON).stringify(Utility.buildRequestBody(params));
 					headers.set("Content-Type", "application/json");
 				default:
 			}
@@ -104,19 +96,13 @@ class RequestClient {
 		_http.addHeader("User-Agent", Http.USER_AGENT);
 
 		var auth:Null<String> = null;
-		if (monosodium.api_token != null && monosodium.username != null) {
-			auth = Base64.encode(Bytes.ofString(monosodium.username + ":" + monosodium.api_token));
+		if (rawAuth != null) {
+			auth = Base64.encode(Bytes.ofString(rawAuth));
 		}
 
-		// Verbose Traces
-		if (monosodium.verbose) {
-			Utility.verboseTrace('Request : [$method] $url');
-			Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
-			auth != null ? Utility.verboseTrace('Authorization : Basic ${Utility.censorString(auth)}') : null;
-			params != null ? Utility.verboseTrace('Request Parameters : ${Json.stringify(params)}') : null;
-		}
-		
-		if(body != null)
+		fetchVerboseTrace(method, params, url);
+
+		if (body != null)
 			_http.setPostData(Json.stringify(Utility.buildRequestBody(body)));
 
 		if (auth != null) {
@@ -143,7 +129,7 @@ class RequestClient {
 		};
 
 		_http.onStatus = function(status:Int):Void {
-			this.onStatus(status, onStatus ?? s -> {} /* trace(s) */);
+			this.onStatus(status, onStatus ?? s -> {});
 		};
 
 		_http.method = method;
@@ -151,24 +137,15 @@ class RequestClient {
 		#end
 	}
 
+	@:noCompletion 
+	inline function fetchVerboseTrace(?method, ?params, ?url):Void if (monosodium.verbose) {
+		Utility.verboseTrace('Request : [$method] $url');
+		Utility.verboseTrace('User-Agent : ${Http.USER_AGENT}');
+		params != null ? Utility.verboseTrace('Request Parameters : ${(#if nodejs (untyped JSON) #else Json #end).stringify(params)}') : null;
+	}
+
 	function onData(data:String, onSuccess:Dynamic->Void, onError:String->Void):Void {
-		switch (statusCode) {
-			case 200:
-				try {
-					onSuccess(Json.parse(data));
-				} catch (e:Dynamic) {
-					onError("Invalid JSON response");
-				}
-			case 204: // not found... aka blank 
-				onSuccess(null);
-			default:
-				try {
-					final err:Result = Json.parse(data);
-					onError(err.reason != null ? err.reason : "HTTP " + statusCode);
-				} catch (_) {
-					onError("HTTP " + statusCode);
-				}
-		}
+		StatusResolver.handle(statusCode, data, onSuccess, onError);
 	}
 
 	function onError(error:String, onError:String->Void):Void {
@@ -183,6 +160,5 @@ class RequestClient {
 		monosodium.verbose ? Utility.verboseTrace('Status Code : $status') : null;
 		onStatus != null ? onStatus(status) : null;
 		rate.enqueue(PASS);
-		//#if !nodejs rate.enqueue(PASS); #end // maybe??...
 	}
 }
