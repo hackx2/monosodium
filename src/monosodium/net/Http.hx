@@ -62,7 +62,7 @@ class Http {
 		final output:BytesOutput = new BytesOutput();
 		var err:Bool = false;
 		http.onError = (error:String) -> {
-			untyped http.responseBytes = output.getBytes();
+			@:privateAccess http.responseBytes = output.getBytes();
 			err = true;
 			http.onError = onError;
 			onError(error);
