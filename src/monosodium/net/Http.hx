@@ -1,37 +1,34 @@
 package monosodium.net;
 
-#if !nodejs
-
-import haxe.io.Bytes;
-import haxe.DynamicAccess;
-import haxe.io.BytesOutput;
-import haxe.http.HttpMethod;
 import monosodium.net.Header;
+
+import haxe.Json;
+import haxe.io.Bytes;
+import haxe.io.BytesOutput;
+import haxe.crypto.Base64;
+import haxe.http.HttpMethod;
 import haxe.extern.EitherType;
-import monosodium.net.Parameter;
 import haxe.exceptions.NotImplementedException;
-import haxe.Http as HttpSource;
-#if sys
+
+#if nodejs
+import haxe.DynamicAccess;
+import js.html.URLSearchParams;
+import js.node.buffer.Buffer;
+#elseif sys
 import sys.net.Socket;
 #end
 
 using StringTools;
 
-#end
-
-// SUPPORTS: sys, nodejs
-// SYS: YES
-// NODEJS: No
-// But nobody came
 class Http {
 	public static inline final USER_AGENT:String = 'hackx2@monosodium/1.0';
-#if !nodejs
+
 	public var url:Null<String> = null;
 	public var method:HttpMethod = Get;
 	public var headers:Array<Header> = [];
 	public var parameters:Array<Parameter> = [];
 
-	#if (!js)
+	#if (sys && !nodejs)
 	public var socket:Null<Socket>;
 	#end
 
@@ -41,19 +38,56 @@ class Http {
 	public function new(url:String):Void this.url = url;
 
 	public function request(?post:Bool):Void {
-		final http = new HttpSource(url);
-		for (i in headers) {
-			http.addHeader(i.name, i.value);
+		#if nodejs
+		var fullUrl = url;
+		if (parameters != null && (method == Get || method == Head || method == Delete)) {
+			final searchParams = new URLSearchParams(untyped Utility.buildRequestBody(parameters));
+			fullUrl += (fullUrl.contains("?") ? "&" : "?") + Std.string(searchParams);
 		}
-		for (i in parameters) {
-			http.setParameter(i.name, i.value);
-		}
+
+		final h:DynamicAccess<String> = {
+			"User-Agent": Http.USER_AGENT,
+			"Accept": "application/json"
+		};
+		for (i in headers) h.set(i.name, i.value);
+
+		final options:Dynamic = {
+			method: Std.string(method).toUpperCase(),
+			headers: h
+		};
+
 		if (postData != null) {
-			http.setPostData(postData);
+			options.body = (untyped JSON).stringify(Utility.buildRequestBody(postData));
+			h.set("Content-Type", "application/json");
+		} else if (parameters != null) {
+			switch (method) {
+				case Post | Put | Patch | Delete:
+					options.body = (untyped JSON).stringify(untyped Utility.buildRequestBody(parameters));
+					h.set("Content-Type", "application/json");
+				default:
+			}
 		}
-		if (postBytes != null) {
-			http.setPostBytes(postBytes);
-		}
+
+		final p = untyped fetch(fullUrl, options);
+		p.then((res:Dynamic) -> {
+			@:nullSafety(Off) this.onStatus(res.status);
+			return res.text();
+		}).then((data:String) -> {
+			this.onData(data);
+		});
+
+		// Reflect (field / callMethod) causes an overhead, while this doesn't
+		untyped p["catch"]((err:Dynamic) -> {
+			@:nullSafety(Off) this.onError(Std.string(err));
+		});
+
+		#else
+		final http = new haxe.Http(url);
+		for (i in headers) http.addHeader(i.name, i.value);
+		for (i in parameters) http.setParameter(i.name, i.value);
+		
+		if (postData != null) http.setPostData(postData);
+		if (postBytes != null) http.setPostBytes(postBytes);
 
 		http.onData = onData;
 		http.onError = onError;
@@ -68,7 +102,7 @@ class Http {
 			onError(error);
 		}
 		post = post || postBytes != null || postData != null;
-		#if (!js)
+		#if (sys && !js)
 		http.customRequest(post, output, socket, method);
 		#else
 		http.request(post);
@@ -76,6 +110,7 @@ class Http {
 		if (!err) {
 			@:privateAccess http.success(output.getBytes());
 		}
+		#end
 	}
 
 	public function send() {
@@ -83,25 +118,14 @@ class Http {
 	}
 
 	// HELPER FUNCTIONS
-	public function addHeader(name:String, value:Dynamic):Void {
-		headers.push(new Header(name, value));
-	}
-
-	public function setParameter(name:String, value:Dynamic):Void {
-		parameters.push(new Parameter(name, value));
-	}
-
-	public function setPostData(postData:String):Void {
-		this.postData = postData;
-	}
-
-	public function setPostBytes(postBytes:Bytes):Void {
-		this.postBytes = postBytes;
-	}
+	public function addHeader(name:String, value:Dynamic):Void headers.push(new Header(name, value));
+	public function setParameter(name:String, value:Dynamic):Void parameters.push(new Parameter(name, value));
+	
+	public function setPostData(postData:String):Void this.postData = postData;
+	public function setPostBytes(postBytes:Bytes):Void this.postBytes = postBytes;
 
 	// EVENT HOOKS
 	dynamic public function onData(_:String):Void {}
 	dynamic public function onError(_:String):Void {}
 	dynamic public function onStatus(_:Int):Void {}
-	#end
 }
