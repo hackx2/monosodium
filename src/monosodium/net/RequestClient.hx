@@ -9,11 +9,7 @@ import monosodium.Monosodium;
 import monosodium.net.ratelimiter.Limiter as RateLimiter;
 import monosodium.endpoints.responses.Result;
 
-#if nodejs
-import haxe.DynamicAccess;
-import js.node.buffer.Buffer;
-import js.node.url.URLSearchParams;
-#else
+#if !nodejs
 import haxe.Json;
 import haxe.io.Bytes;
 import haxe.crypto.Base64;
@@ -36,60 +32,13 @@ class RequestClient {
 	private function performRequest(url:String, post:Bool, method:HttpMethod, onSuccess:Dynamic->Void, ?onError:String->Void, ?onStatus:Int->Void, ?params:Dynamic, ?body:Dynamic):Void {
 		this.statusCode = 0;
 
-		@:nullSafety(Off) var fullUrl:String = Path.join([monosodium._mirror.url, url]);
+		@:nullSafety(Off) final fullUrl:String = Path.join([monosodium._mirror.url, url]);
 
 		var rawAuth:Null<String> = null;
 		if ((monosodium.api_token != null && monosodium.username != null)) {
 			rawAuth = '${monosodium.username}:${monosodium.api_token}';
 		}
 
-		#if nodejs
-		if (params != null && (method == Get || method == Head || method == Delete)) {
-			final searchParams = new URLSearchParams(Utility.buildRequestBody(params));
-			fullUrl += "?" + searchParams.toString();
-		}
-
-		final headers:DynamicAccess<String> = {
-			"User-Agent": Http.USER_AGENT,
-			"Accept": "application/json"
-		};
-
-		if (rawAuth != null) {
-			headers.set("Authorization", 'Basic ${untyped btoa(rawAuth)}');
-		}
-
-		fetchVerboseTrace(method, params, url);
-
-		final options:Dynamic = {
-			method: Std.string(method).toUpperCase(),
-			headers: headers
-		};
-
-		if (body != null) {
-			options.body = (untyped JSON).stringify(Utility.buildRequestBody(body));
-			headers.set("Content-Type", "application/json");
-		} else if (params != null) {
-			switch (method) {
-				case Post | Put | Patch | Delete:
-					options.body = (untyped JSON).stringify(Utility.buildRequestBody(params));
-					headers.set("Content-Type", "application/json");
-				default:
-			}
-		}
-
-		final p = untyped fetch(fullUrl, options);
-		p.then((res:Dynamic) -> {
-			@:nullSafety(Off) this.onStatus(res.status, onStatus);
-			return res.text();
-		}).then((data:String) -> {
-			this.onData(data, onSuccess, onError ?? (s->trace(s)));
-		});
-
-		// Reflect (field / callMethod) causes an overhead, while this doesn't
-		untyped p["catch"]((err:Dynamic) -> {
-			@:nullSafety(Off) this.onError(Std.string(err), onError ?? (s->trace(s)));
-		});
-		#else
 		@:nullSafety(Off) var _http:Http = new Http(fullUrl);
 
 		#if js if (!StringTools.contains(js.Browser.navigator.userAgent, 'Chrome')) #end // fuck chromium
@@ -97,13 +46,13 @@ class RequestClient {
 
 		var auth:Null<String> = null;
 		if (rawAuth != null) {
-			auth = Base64.encode(Bytes.ofString(rawAuth));
+			auth = #if (js || nodejs) untyped btoa(rawAuth) #else Base64.encode(Bytes.ofString(rawAuth)) #end;
 		}
 
 		fetchVerboseTrace(method, params, url);
 
 		if (body != null)
-			_http.setPostData(Json.stringify(Utility.buildRequestBody(body)));
+			_http.setPostData((#if (js || nodejs) untyped JSON #else Json #end).stringify(Utility.buildRequestBody(body)));
 
 		if (auth != null) {
 			_http.addHeader("Authorization", auth);
@@ -134,7 +83,6 @@ class RequestClient {
 
 		_http.method = method;
 		_http.request(post);
-		#end
 	}
 
 	@:noCompletion 
