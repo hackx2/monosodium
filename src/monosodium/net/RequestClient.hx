@@ -6,7 +6,7 @@ import haxe.http.HttpMethod;
 import monosodium.Utility;
 import monosodium.net.Http;
 import monosodium.Monosodium;
-import monosodium.net.ratelimiter.Limiter as RateLimiter;
+import monosodium.net.ratelimiter.RequestLimiter;
 import monosodium.endpoints.responses.Result;
 
 #if !nodejs
@@ -19,7 +19,7 @@ import haxe.crypto.Base64;
 @:access(monosodium.Monosodium)
 class RequestClient {
 	public var statusCode:Int = 0;
-	public var rate:RateLimiter = Monosodium.defaultLimiter; //
+	public var rate:RequestLimiter = Monosodium.defaultLimiter; //
 
 	@:dox(hide) var monosodium:Monosodium;
 	public function new(monosodium:Monosodium):Void { this.monosodium = monosodium; }

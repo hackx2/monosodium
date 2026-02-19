@@ -20,7 +20,7 @@ class LazyEndpointMacro {
             for (m in field.meta) if (m.name == ":lazy") { lazyMeta = m; break; }
 
             if (lazyMeta != null) {
-                switch (field.kind) {
+                switch field.kind {
                     case FVar(type, _):
                         final name:String = field.name;
                         final privName:String = "_" + name;
@@ -38,7 +38,7 @@ class LazyEndpointMacro {
                         field.meta.push({name: ":isVar", pos: field.pos});
                         field.meta.push({name: ":keep", pos: field.pos});
 
-                        final typePath:TypePath = switch (type) {
+                        final typePath:TypePath = switch type {
                             case TPath(p): p;
                             default: Context.error("@:lazy requires an explicit type", field.pos);
                         };

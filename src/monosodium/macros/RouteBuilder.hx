@@ -17,7 +17,7 @@ class RouteBuilder {
 
 		for (m in cls.meta.get()) {
 			if (m.name == ":route" && m.params.length > 0) {
-				switch (m.params[0].expr) {
+				switch m.params[0].expr {
 					case EConst(CString(s, _)):
 						val = s;
 					default:
