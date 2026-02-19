@@ -10,7 +10,6 @@ class Parameter {
         this.value = value;
     }
 
-    @:to
     public inline function toString():String {
         return '{name: $name, value: $value}';
     }

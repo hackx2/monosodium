@@ -20,6 +20,7 @@ import sys.net.Socket;
 
 using StringTools;
 
+@:keep @:nullSafety
 class Http {
 	public static inline final USER_AGENT:String = 'hackx2@monosodium/1.0';
 
@@ -32,16 +33,24 @@ class Http {
 	public var socket:Null<Socket>;
 	#end
 
+	@:noCompletion
 	var postData:Null<String>;
+
+	@:noCompletion
 	var postBytes:Null<Bytes>;
 
-	public function new(url:String):Void this.url = url;
+	public function new(url:String):Void
+		this.url = url;
 
+	@:access(monosodium.Utility)
 	public function request(?post:Bool):Void {
+		if (url == null)
+			throw 'Cannot require a null url';
+
 		#if nodejs
-		var fullUrl = url;
+		var fullUrl:String = url;
 		if (parameters != null && (method == Get || method == Head || method == Delete)) {
-			final searchParams = new URLSearchParams(untyped Utility.buildRequestBody(parameters));
+			final searchParams = new URLSearchParams(Utility.buildRequestBody(parameters));
 			fullUrl += (fullUrl.contains("?") ? "&" : "?") + Std.string(searchParams);
 		}
 
@@ -49,7 +58,8 @@ class Http {
 			"User-Agent": Http.USER_AGENT,
 			"Accept": "application/json"
 		};
-		for (i in headers) h.set(i.name, i.value);
+		for (i in headers)
+			h.set(i.name, i.value);
 
 		final options:Dynamic = {
 			method: Std.string(method).toUpperCase(),
@@ -60,7 +70,7 @@ class Http {
 			options.body = (untyped JSON).stringify(Utility.buildRequestBody(postData));
 			h.set("Content-Type", "application/json");
 		} else if (parameters != null) {
-			switch (method) {
+			switch method {
 				case Post | Put | Patch | Delete:
 					options.body = (untyped JSON).stringify(untyped Utility.buildRequestBody(parameters));
 					h.set("Content-Type", "application/json");
@@ -80,14 +90,17 @@ class Http {
 		untyped p["catch"]((err:Dynamic) -> {
 			@:nullSafety(Off) this.onError(Std.string(err));
 		});
-
 		#else
 		final http = new haxe.Http(url);
-		for (i in headers) http.addHeader(i.name, i.value);
-		for (i in parameters) http.setParameter(i.name, i.value);
-		
-		if (postData != null) http.setPostData(postData);
-		if (postBytes != null) http.setPostBytes(postBytes);
+		for (i in headers)
+			http.addHeader(i.name, i.value);
+		for (i in parameters)
+			http.setParameter(i.name, i.value);
+
+		if (postData != null)
+			http.setPostData(postData);
+		if (postBytes != null)
+			http.setPostBytes(postBytes);
 
 		http.onData = onData;
 		http.onError = onError;
@@ -125,7 +138,7 @@ class Http {
 	public function setPostBytes(postBytes:Bytes):Void this.postBytes = postBytes;
 
 	// EVENT HOOKS
-	dynamic public function onData(_:String):Void {}
-	dynamic public function onError(_:String):Void {}
-	dynamic public function onStatus(_:Int):Void {}
+	@:isVar dynamic public function onData(_:String):Void {}
+	@:isVar dynamic public function onError(_:String):Void {}
+	@:isVar dynamic public function onStatus(_:Int):Void {}
 }
