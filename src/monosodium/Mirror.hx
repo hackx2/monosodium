@@ -1,7 +1,7 @@
 package monosodium;
 
 // Despite everything, it's still you...
-enum abstract Mirror(String) from String to String {
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract Mirror(String) from String to String {
 	final E621:Mirror = "e621"; // nsfw, sfw & questionable
 	final E926:Mirror = "e926"; // sfw & questionable
 

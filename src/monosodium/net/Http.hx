@@ -50,7 +50,11 @@ class Http {
 		#if nodejs
 		var fullUrl:String = url;
 		if (parameters != null && (method == Get || method == Head || method == Delete)) {
-			final searchParams = new URLSearchParams(Utility.buildRequestBody(parameters));
+			final dynamicParams:DynamicAccess<String> = {};
+			for (p in parameters) {
+				dynamicParams.set(p.name, Std.string(p.value));
+			}
+			final searchParams = new URLSearchParams(dynamicParams);
 			fullUrl += (fullUrl.contains("?") ? "&" : "?") + Std.string(searchParams);
 		}
 
@@ -67,12 +71,12 @@ class Http {
 		};
 
 		if (postData != null) {
-			options.body = (untyped JSON).stringify(Utility.buildRequestBody(postData));
+			options.body = (untyped JSON).stringify(postData);
 			h.set("Content-Type", "application/json");
 		} else if (parameters != null) {
 			switch method {
 				case Post | Put | Patch | Delete:
-					options.body = (untyped JSON).stringify(untyped Utility.buildRequestBody(parameters));
+					options.body = (untyped JSON).stringify(parameters);
 					h.set("Content-Type", "application/json");
 				default:
 			}
