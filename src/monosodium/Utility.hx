@@ -31,28 +31,4 @@ final class Utility {
 
 		return buf.toString();
 	}
-
-	// find an alternative that doesn't use reflect... :3
-	@:noUsing public static function buildRequestBody(obj:Dynamic, ?prefix:String = ""):Dynamic {
-		var result:Dynamic = {};
-		for (field in Reflect.fields(obj)) {
-			final value:Dynamic = Reflect.field(obj, field);
-			if (value == null) continue; // ignore null values
-
-			final key:String = prefix != "" ? prefix + '[$field]' : field;
-
-			// recurse
-			if (Reflect.isObject(value) && !Std.isOfType(value, String) && !Std.isOfType(value, Array)) {
-				final nestedBody:Dynamic = buildRequestBody(value, key);
-
-				for (nestedKey in Reflect.fields(nestedBody)) {
-					Reflect.setField(result, nestedKey, Reflect.field(nestedBody, nestedKey));
-				}
-			} else {
-				Reflect.setField(result, key, value);
-			}
-		}
-
-		return result;
-	}
 }

@@ -30,6 +30,13 @@ class Main {
 			trace(post.preview.url);
 		}, error -> trace(error));
 
+		// Get 5 pools from the first page, then return its names
+		api.pools.search({ limit: 5, page: 1 }, pools -> {
+			for (p in pools) {
+				trace(p.name);
+			}
+		}, err -> trace("Search failed: " + err));
+
 		// Get pool #12, then return it's name + post count
 		api.pools.get(12, pool -> {
 			trace('${pool.name} (${pool.post_count} posts)');

@@ -52,20 +52,16 @@ class RequestClient {
 		fetchVerboseTrace(method, params, url);
 
 		if (body != null)
-			_http.setPostData((#if (js || nodejs) untyped JSON #else Json #end).stringify(Utility.buildRequestBody(body)));
+			_http.setPostData((#if (js || nodejs) untyped JSON #else Json #end).stringify(body));
 
 		if (auth != null) {
 			_http.addHeader("Authorization", auth);
 		}
 
-		// if (params != null) {
-		// 	setParams(params, null, _http);
-		// }
-
 		if (params != null) {
-			final body:Dynamic = Utility.buildRequestBody(params);
-			for (field in Reflect.fields(body)) {
-				_http.setParameter(field, Std.string(Reflect.field(body, field)));
+			final body:haxe.DynamicAccess<Dynamic> = params;
+			for (f => v in body) {
+				_http.setParameter(f, Std.string(v));
 			}
 		}
 
