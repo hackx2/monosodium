@@ -49,7 +49,7 @@ class Http {
 
 		#if nodejs
 		var searchParams:Array<String> = [];
-		if (parameters != null) {
+		if (parameters != null && (method == Get || method == Head || method == Delete)) {
   			for (param in parameters) {
     			searchParams.push(param.name + '=' + StringTools.urlEncode(param.value));
   			}
