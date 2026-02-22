@@ -48,25 +48,27 @@ class Http {
 			throw 'Cannot require a null url';
 
 		#if nodejs
-		var fullUrl:String = url;
-		if (parameters != null && (method == Get || method == Head || method == Delete)) {
-			final dynamicParams:DynamicAccess<String> = {};
-			for (p in parameters) {
-				dynamicParams.set(p.name, Std.string(p.value));
-			}
-			final searchParams = new URLSearchParams(dynamicParams);
-			fullUrl += (fullUrl.contains("?") ? "&" : "?") + Std.string(searchParams);
+		var searchParams:Array<String> = [];
+		if (parameters != null) {
+  			for (param in parameters) {
+    			searchParams.push(param.name + '=' + StringTools.urlEncode(param.value));
+  			}
 		}
+
+		var paramString:String = searchParams.join("&");
+
+		var fullUrl:String = url + ((paramString.length > 0) ? '?' + paramString : '');
 
 		final h:DynamicAccess<String> = {
 			"User-Agent": Http.USER_AGENT,
 			"Accept": "application/json"
 		};
+
 		for (i in headers)
 			h.set(i.name, i.value);
 
 		final options:Dynamic = {
-			method: Std.string(method).toUpperCase(),
+			method: method,
 			headers: h
 		};
 
