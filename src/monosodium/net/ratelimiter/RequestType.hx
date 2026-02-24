@@ -1,6 +1,6 @@
 package monosodium.net.ratelimiter;
 
-@:pure
+@:keep
 enum RequestType {
 	PASS;
 	CALL(fun:Void->Void);
