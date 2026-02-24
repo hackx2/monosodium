@@ -8,7 +8,7 @@ import haxe.macro.Compiler;
 
 // :3
 // this is so overkill :pensive:
-class RouteBuilder {
+final class RouteBuilder {
 	public static macro function build():Array<Field> {
 		final fields:Array<Field> = Context.getBuildFields();
 		final cls:ClassType = Context.getLocalClass().get();

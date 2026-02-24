@@ -1,7 +1,9 @@
 package monosodium.endpoints.schemas.post;
 
+import haxe.io.Bytes;
+
 typedef Upload = {
-	var file:Null<String>;
+	var file:Null<Bytes>;
 	var direct_url:Null<String>;
 	var tag_string:String;
 	var rating:String;

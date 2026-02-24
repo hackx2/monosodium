@@ -15,6 +15,7 @@ import haxe.io.Bytes;
 import haxe.crypto.Base64;
 #end
 
+@:keep
 @:nullSafety(Strict)
 @:access(monosodium.Monosodium)
 class RequestClient {
@@ -35,8 +36,8 @@ class RequestClient {
 		@:nullSafety(Off) final fullUrl:String = Path.join([monosodium._mirror.url, url]);
 
 		var rawAuth:Null<String> = null;
-		if ((monosodium.api_token != null && monosodium.username != null)) {
-			rawAuth = '${monosodium.username}:${monosodium.api_token}';
+		if (monosodium.account != null && monosodium.account.token != null && monosodium.account.username != null) {
+			rawAuth = '${monosodium.account.username}:${monosodium.account.token}';
 		}
 
 		@:nullSafety(Off) var _http:Http = new Http(fullUrl);

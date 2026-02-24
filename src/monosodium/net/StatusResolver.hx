@@ -2,8 +2,7 @@ package monosodium.net;
 
 import haxe.Json;
 
-@:nullSafety
-class StatusResolver {
+final class StatusResolver {
     public static function handle(statusCode:Int, data:String, onSuccess:Dynamic->Void, onError:String->Void):Void {
         switch statusCode {
             // client-based errors...
