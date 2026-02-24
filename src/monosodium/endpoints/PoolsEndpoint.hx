@@ -1,17 +1,16 @@
 package monosodium.endpoints;
 
-import monosodium.endpoints.schemas.pools.Element;
-import monosodium.endpoints.schemas.pools.Create;
+import monosodium.Monosodium;
+import monosodium.endpoints.types.ID;
+import monosodium.endpoints.schemas.Pool;
 import monosodium.endpoints.queries.Pools;
 import monosodium.endpoints.base.Endpoint;
-import monosodium.endpoints.schemas.Pool;
+import monosodium.endpoints.schemas.pools.Create;
 import monosodium.endpoints.schemas.pools.Recent;
-import monosodium.Monosodium;
-import haxe.http.HttpMethod;
-import monosodium.endpoints.types.ID;
+import monosodium.endpoints.schemas.pools.Element;
 
 /**
- * Endpoint for interacting with the `/pools` & '/pool_element' API route.
+ * Endpoint for interacting with the `/pools` & '/pool_element' API routes.
  * This endpoint class provides methods to `search`, `create`, `get`, and `edit` artists.
  * Additionally provides methods for `addPost`, `removePost`, and `recent`.
  * 
@@ -26,16 +25,21 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback to handle an array of `Artist` object(s) returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function search(params:Pools, callback:Array<Pool>->Void, ?onError:String->Void):Void {
-		api.request('${route}.json', false, HttpMethod.Get, data -> {
-			try {
-				callback((cast data : Array<Pool>));
-			} catch (e:Dynamic) {
-				if (onError != null) {
-					onError('Failed mapping pools : ${e}');
+	@:GET function search(params:Pools, callback:Array<Pool>->Void, ?onError:String->Void):Void {
+		url:'${route}.json',
+		callbacks:{
+			success:(data) -> {
+				try {
+					callback((cast data : Array<Pool>));
+				} catch (e:Dynamic) {
+					if (onError != null) {
+						onError('Failed pool search: ${e}');
+					}
 				}
-			}
-		}, onError, null, params);
+			},
+			error:onError
+		},
+		params:params
 	}
 
 	/**
@@ -45,8 +49,13 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the newly created `Pool` object returned from the API
 	 * @param onError (Optional) callback to handle errors that occur during the request
 	 */
-	public function create(data:Create, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${route}.json', true, HttpMethod.Post, callback, onError, null, null, {pool: data});
+	@:POST function create(data:Create, callback:Pool->Void, ?onError:String->Void):Void {
+		url: '${route}.json',
+		callbacks: {
+			success: callback,
+			error: onError
+		},
+		body: {pool: data}
 	}
 
 	/**
@@ -56,8 +65,12 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function get(id:ID, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback((cast data : Pool)), onError);
+	@:GET function get(id:ID, callback:Pool->Void, ?onError:String->Void):Void {
+		url:'${route}/${id}.json',
+		callbacks:{
+			success:(data) -> callback((cast data : Pool)),
+			error:onError
+		}
 	}
 
 	/**
@@ -68,11 +81,18 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the updated `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function edit(id:ID, data:Create, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', true, HttpMethod.Patch, callback, onError, null, null, {pool: data});
+	@:PATCH function edit(id:ID, data:Create, callback:Pool->Void, ?onError:String->Void):Void {
+		url:'${route}/${id}.json',
+		callbacks:{
+			success:callback,
+			error:onError
+		},
+		body:{
+			pool:data
+		}
 	}
 
-	@:dox(hide) static inline final elementRoute:String = '/pool_element';
+	@:dox(hide) static inline final poolElement:String = '/pool_element';
 
 	/**
 	 * Add a post to the given pool.
@@ -81,8 +101,13 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the `Pool` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function addPost(params:Element, callback:Pool->Void, ?onError:String->Void):Void {
-		api.request('${elementRoute}.json', true, HttpMethod.Post, callback, onError, null, null, params);
+	@:POST function addPost(params:Element, callback:Pool->Void, ?onError:String->Void):Void {
+		url:'${poolElement}.json',
+		callbacks:{
+			success:callback,
+			error:onError
+		},
+		body:params
 	}
 
 	/**
@@ -92,8 +117,13 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function removePost(params:Element, callback:Void->Void, ?onError:String->Void):Void {
-		api.request('${elementRoute}.json', true, HttpMethod.Delete, d -> callback(), onError, null, null, params);
+	@:DELETE function removePost(params:Element, callback:Void->Void, ?onError:String->Void):Void {
+		url:'${poolElement}.json',
+		callbacks:{
+			success:_ -> callback(),
+			error:onError
+		},
+		body:params
 	}
 
 	/**
@@ -103,15 +133,20 @@ final class PoolsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the post object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function recent(params:Element, callback:Array<Recent>->Void, ?onError:String->Void):Void {
-		api.request('${elementRoute}/recent.json', false, HttpMethod.Get, data -> {
-			try {
-				callback((cast data : Array<Recent>));
-			} catch (e:Dynamic) {
-				if (onError != null) {
-					onError('Failed mapping recents : ${e}');
+	@:GET function recent(params:Element, callback:Array<Recent>->Void, ?onError:String->Void):Void {
+		url:'${poolElement}/recent.json',
+		callbacks:{
+			success:(data) -> {
+				try {
+					callback((cast data : Array<Recent>));
+				} catch (e:Dynamic) {
+					if (onError != null) {
+						onError('Failed to get recent pools: ${e}');
+					}
 				}
-			}
-		}, onError, null, null, params);
+			},
+			error:onError
+		},
+		body:params
 	}
 }
