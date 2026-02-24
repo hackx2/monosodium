@@ -20,7 +20,7 @@ import sys.net.Socket;
 
 using StringTools;
 
-@:keep @:nullSafety
+@:keep @:nullSafety(Strict)
 class Http {
 	public static inline final USER_AGENT:String = 'hackx2@monosodium/1.0';
 

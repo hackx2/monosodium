@@ -1,15 +1,11 @@
 package monosodium;
 
-import haxe.PosInfos;
-import haxe.Json;
-import monosodium.endpoints.*;
-import haxe.io.Path;
-import monosodium.net.Http;
-import haxe.crypto.Base64;
-import haxe.io.Bytes;
 import haxe.http.HttpMethod;
-import monosodium.net.ratelimiter.RequestLimiter;
+
+import monosodium.net.Http;
+import monosodium.endpoints.*;
 import monosodium.net.RequestClient;
+import monosodium.net.ratelimiter.RequestLimiter;
 
 // You are filled with determination
 @:build(monosodium.macros.LazyEndpointMacro.build())
@@ -18,10 +14,13 @@ class Monosodium {
 	public static var defaultVerboseMode:Bool = false;
 
 	public var verbose:Bool = Monosodium.defaultVerboseMode;
-	public var username:Null<String>;
+	public var account:Null<Account>;
 
-	@:unreflective
-	private var api_token:Null<String>;
+	@:deprecated("username is deprecated. Use `account.username` instead.")
+	public var username(default, never):Null<String>;
+
+	@:deprecated("api_token is deprecated. Use `account.token` instead.")
+	private var api_token(default, never):Null<String>;
 
 	private var _mirror:Null<Mirror>;
 
@@ -41,11 +40,10 @@ class Monosodium {
 	@:lazy public var avoidPostingVersions:AvoidPostingVersionsEndpoint;
 
 	public inline function authorize(username:String, api_token:String, ?censor:Bool = true):Monosodium {
-		this.api_token = api_token;
-		this.username = username;
+		account = new Account(username, api_token);
 
-		final name:String = censor ? Utility.censorString(username) : username;
-		final token:String = censor ? Utility.censorString(api_token) : api_token;
+		final name:String = censor ? Utility.censorString(account.username) : account.username;
+		final token:String = censor ? Utility.censorString(account.token) : account.token;
 		
 		this.verbose ? Utility.verboseTrace('Credentials : ${name}:${token}@${_mirror}') : null;
 

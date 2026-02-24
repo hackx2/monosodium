@@ -10,7 +10,7 @@ import haxe.macro.Expr;
  * 
  * e.g. `api.bans.get(...);` which automatically initializes the bans endpoint.
  */
-class LazyEndpointMacro {
+final class LazyEndpointMacro {
     public macro static function build():Array<Field> {
         final fields:Array<Field> = Context.getBuildFields();
         final newFields:Array<Field> = [];

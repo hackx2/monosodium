@@ -6,8 +6,8 @@ import haxe.Timer;
 /**
  * lacks a few features, but eh.. who cares?
  */
-@:nullSafety
 @:keep
+@:nullSafety(Strict)
 class RequestLimiter {
 	public var rate:Float;
 	public var burst:Int;

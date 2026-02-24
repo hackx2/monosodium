@@ -4,7 +4,7 @@ package monosodium.macros;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
-class EndpointBuilder {
+final class EndpointBuilder {
 	public static function build():Array<Field> {
 		final fields:Array<Field> = Context.getBuildFields();
 		final currentPosition:Position = Context.currentPos();
