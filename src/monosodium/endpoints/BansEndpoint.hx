@@ -19,8 +19,13 @@ final class BansEndpoint implements Endpoint {
 	 * @param callback Callback to handle an array of `Ban` object(s) returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function search(params:Bans, callback:Array<Ban>->Void, ?onError:String->Void):Void {
-		api.request('${route}.json', false, HttpMethod.Get, data -> callback((cast data : Array<Ban>)), onError, null, params);
+	@:GET function search(params:Bans, callback:Array<Ban>->Void, ?onError:String->Void):Void {
+		url:'${route}.json',
+		callbacks:{
+			success:(data) -> callback((cast data : Array<Ban>)),
+			error:onError
+		},
+		params:params
 	}
 
 	/**
@@ -30,7 +35,11 @@ final class BansEndpoint implements Endpoint {
 	 * @param callback Callback to handle the `Ban` object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function get(id:ID, callback:Ban->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback(data), onError);
+	@:GET function get(id:ID, callback:Ban->Void, ?onError:String->Void):Void {
+		url:'${route}/${id}.json',
+		callbacks:{
+			success:(data) -> callback(data),
+			error:onError
+		}
 	}
 }
