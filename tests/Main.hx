@@ -20,10 +20,22 @@ class Main {
 		// Authorize (depends on what you're doing ^w^)
 		api.authorize(config.get('USERNAME'), config.get('API_TOKEN'));
 
+		// Get the first 4 bans, then trace their ban id
+		api.bans.search({limit: 4}, e -> {
+			for (i in e) {
+				trace('#${i.id}');
+			}
+		}, error -> trace(error));
+
+		// Get the ban #36366, then trace their user id
+		api.bans.get(36366, e -> {
+			trace(e.user_id);
+		}, error -> trace(error));
+
 		// Get post #12345, then return it's id and rating
 		api.posts.get(12345, p -> {
 			trace('Post #${p.id} has rating ${p.rating}');
-		});
+		}, error -> trace(error));
 
 		// Get a random post using the tags "gay" and "-female", then turn it's file url
 		api.posts.random(["gay", "-female"], post -> {
@@ -31,11 +43,11 @@ class Main {
 		}, error -> trace(error));
 
 		// Get 5 pools from the first page, then return its names
-		api.pools.search({ limit: 5, page: 1 }, pools -> {
+		api.pools.search({limit: 5, page: 1}, pools -> {
 			for (p in pools) {
 				trace(p.name);
 			}
-		}, err -> trace("Search failed: " + err));
+		}, error -> trace(error));
 
 		// Get pool #12, then return it's name + post count
 		api.pools.get(12, pool -> {
