@@ -1,7 +1,6 @@
 package monosodium.endpoints;
 
 import haxe.io.Error;
-import haxe.http.HttpMethod;
 import haxe.extern.EitherType;
 
 import monosodium.endpoints.types.ID;
@@ -29,11 +28,11 @@ final class PostsEndpoint implements Endpoint {
 	/**
 	 * Search for post based on query parameters.
 	 * 
-	 * @param params Search query parameters for filtering post (e.g., id, order, name, etc)
+	 * @param options Search query parameters for filtering post (e.g., id, order, name, etc)
 	 * @param callback Callback to handle an array of `Post` object(s) returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	@:GET function search(search_options:Posts, callback:Array<PostSchema>->Void, ?onError:String->Void):Void {
+	@:GET function search(options:Posts, callback:Array<PostSchema>->Void, ?onError:String->Void):Void {
 		url:'${route}.json',
 		callbacks:{
 			success:(data) -> {
@@ -41,13 +40,13 @@ final class PostsEndpoint implements Endpoint {
 					callback((data.posts : Array<PostSchema>));
 				} catch (error:Error) {
 					if (onError != null) {
-						onError('Search failed: ${error}');
+						onError('Post search failed: ${error}');
 					}
 				}
 			},
 			error:onError
 		},
-		params:search_options
+		params:options
 	}
 
 	/**
@@ -141,9 +140,9 @@ final class PostsEndpoint implements Endpoint {
 			success:data -> {
 				try {
 					callback((data.post : PostSchema));
-				} catch (e) {
+				} catch (error:Error) {
 					if (onError != null) {
-						onError('failed sterilizing : $e');
+						onError('Failed to mark as translated: ${error}');
 					}
 				}
 			},
