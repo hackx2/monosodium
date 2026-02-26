@@ -1,11 +1,11 @@
 package monosodium.endpoints;
 
-import haxe.http.HttpMethod;
+import haxe.io.Error;
+import monosodium.endpoints.types.ID;
 import monosodium.endpoints.base.Endpoint;
 import monosodium.endpoints.schemas.Artist;
 import monosodium.endpoints.queries.Artists;
 import monosodium.endpoints.queries.artist.Create;
-import monosodium.endpoints.types.ID;
 
 /**
  * Endpoint for interacting with the `/artists` API route.
@@ -18,20 +18,25 @@ final class ArtistsEndpoint implements Endpoint {
 	/**
 	 * Search for artists based on query parameters.
 	 * 
-	 * @param params Search query parameters for filtering artists (e.g., id, order, name, etc)
+	 * @param options Search query parameters for filtering artists (e.g., id, order, name, etc)
 	 * @param callback Callback to handle an array of `Artist` object(s) returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function search(params:Artists, callback:Array<Artist>->Void, ?onError:String->Void):Void {
-		api.request('${route}.json', false, HttpMethod.Get, data -> {
-			try {
-				callback((cast data : Array<Dynamic>).map(d -> return Artist.sterilize(d)));
-			} catch (e:Dynamic) {
-				if (onError != null) {
-					onError('Failed to process artist search response: ${e}');
+	@:GET function search(options:Artists, callback:Array<Artist>->Void, ?onError:String->Void):Void {
+		url:'${route}.json',
+		callbacks:{
+			success:(data) -> {
+				try {
+					callback((data : Array<Artist>));
+				} catch (error:Error) {
+					if (onError != null) {
+						onError('Artist search failed: ${error}');
+					}
 				}
-			}
-		}, onError, null, params);
+			},
+			error:onError
+		},
+		params:options
 	}
 
 	/**
@@ -41,8 +46,15 @@ final class ArtistsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the newly created Artist object returned from the API
 	 * @param onError (Optional) callback to handle errors that occur during the request
 	 */
-	public function create(params:Create, callback:Artist->Void, ?onError:String->Void):Void {
-		api.request('${route}.json', true, HttpMethod.Post, data -> callback(Artist.sterilize(data)), onError, null, {artist: params});
+	@:POST function create(params:Create, callback:Artist->Void, ?onError:String->Void):Void {
+		url:'${route}.json',
+		callbacks:{
+			success:(data) -> callback((data : Artist)),
+			error:onError
+		},
+		body:{
+			artist:params
+		}
 	}
 
 	/**
@@ -52,8 +64,12 @@ final class ArtistsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the Artist object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function get(id:ID, callback:Artist->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', false, HttpMethod.Get, data -> callback(Artist.sterilize(data)), onError);
+	@:GET function get(id:ID, callback:Artist->Void, ?onError:String->Void):Void {
+		url:'${route}/${id}.json',
+		callbacks:{
+			success:(data) -> callback((data : Artist)),
+			error:onError
+		}
 	}
 
 	/**
@@ -64,7 +80,14 @@ final class ArtistsEndpoint implements Endpoint {
 	 * @param callback Callback to handle the updated Artist object returned from the API
 	 * @param onError (Optional) Callback to handle errors that occur during the request
 	 */
-	public function edit(id:ID, params:Create, callback:Artist->Void, ?onError:String->Void):Void {
-		api.request('${route}/${id}.json', true, HttpMethod.Patch, data -> callback(Artist.sterilize(data)), onError, null, {artist: params});
+	@:PATCH function edit(id:ID, params:Create, callback:Artist->Void, ?onError:String->Void):Void {
+		url:'${route}/${id}.json',
+		callbacks:{
+			success:(data) -> callback((data : Artist)),
+			error:onError
+		},
+		body:{
+			artist:params
+		}
 	}
 }
